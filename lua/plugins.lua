@@ -30,12 +30,12 @@ require('packer').startup(function(use)
   use { -- Autocompletion
     'hrsh7th/nvim-cmp',
     requires = {
-      'hrsh7th/cmp-nvim-lsp',
-      'L3MON4D3/LuaSnip',
+      'hrsh7th/cmp-nvim-lsp',   -- CMP integration with lsp
+      'L3MON4D3/LuaSnip',       -- Code snippets
       'saadparwaiz1/cmp_luasnip',
-      'hrsh7th/cmp-nvim-lsp-signature-help',
+      'hrsh7th/cmp-nvim-lsp-signature-help',    -- Function signature while typing
       'hrsh7th/cmp-vsnip',
-      'hrsh7th/cmp-path',
+      'hrsh7th/cmp-path',   -- Filesystem paths
       'hrsh7th/cmp-buffer',
       'hrsh7th/vim-vsnip',
     },
@@ -121,8 +121,6 @@ require('packer').startup(function(use)
   }
   -- Rust tools - Automatically configure rust_analyzer
   use { 'simrat39/rust-tools.nvim' }
-  -- Profiling annotations
-  use { 't-troebst/perfanno.nvim' }
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

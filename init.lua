@@ -141,9 +141,15 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    -- if server_name == "rust_analyzer" then
-    --   return
-    -- end
+    if server_name == "intelephense" then
+      require('lspconfig').intelephense.setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers["intelephense"],
+        root_dir = require 'lspconfig'.util.root_pattern('index.php')
+      }
+      return
+    end
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
       on_attach = on_attach,
