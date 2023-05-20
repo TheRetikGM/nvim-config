@@ -120,6 +120,13 @@ local servers = {
       telemetry = { enable = false },
     },
   },
+  pylsp = {},
+  rust_analyzer = {},
+  cmake = {},
+  omnisharp = {},
+  intelephense = {},
+  html = {},
+  docker_compose_language_service = {},
 }
 
 -- Setup neovim lua configuration
