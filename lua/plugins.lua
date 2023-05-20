@@ -121,6 +121,8 @@ require('packer').startup(function(use)
   }
   -- Rust tools - Automatically configure rust_analyzer
   use { 'simrat39/rust-tools.nvim' }
+  -- Profiling annotations
+  use { 't-troebst/perfanno.nvim' }
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
