@@ -20,7 +20,6 @@ vim.keymap.set('n', '<leader>sk', require('telescope.builtin').keymaps, { desc =
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
 -- BufferLine keymaps
 vim.keymap.set('n', 'H', ':BufferLineCyclePrev<cr>', { desc = 'Move to previous buffer' })
@@ -154,7 +153,7 @@ dap.listeners.after.event_terminated["dapui_config"] = close_debug_ui
 dap.listeners.before.event_exited["dapui_config"] = close_debug_ui
 
 -- Useful workflow keybindings
-vim.keymap.set('n', '<C-F5>', ':wa<cr>:ToggleTerm<cr>i<C-u>cargo run<cr>', { remap = true, desc = "Rust cargo run" })
-vim.keymap.set('i', '<C-F5>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>cargo run<cr>', { desc = "Rust cargo run" })
-vim.keymap.set('n', '<F29>', ':wa<cr>:ToggleTerm<cr>i<C-u>cargo run<cr>', { remap = true, desc = "Rust cargo run" })
-vim.keymap.set('i', '<F29>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>cargo run<cr>', { desc = "Rust cargo run" })
+vim.keymap.set('n', '<C-F5>', ':wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { remap = true, desc = "Rust ninja && ./main" })
+vim.keymap.set('i', '<C-F5>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { desc = "Rust ninja && ./main" })
+vim.keymap.set('n', '<F29>', ':wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { remap = true, desc = "Rust ninja && ./main" })
+vim.keymap.set('i', '<F29>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { desc = "Rust ninja && ./main" })

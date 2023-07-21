@@ -123,6 +123,8 @@ require('packer').startup(function(use)
   use { 'simrat39/rust-tools.nvim' }
   -- Profiling annotations
   use { 't-troebst/perfanno.nvim' }
+  -- Auto indentation for lisp-like languages (I use it for EWW configuration files)
+  use { 'gpanders/nvim-parinfer' }
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

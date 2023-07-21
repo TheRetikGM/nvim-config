@@ -37,13 +37,13 @@ vim.o.foldmethod = "expr"
 vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 vim.o.foldlevel = 99
 
-vim.cmd([[
-  " When switching buffers, preserve window view.
-  if v:version >= 700
-    au BufLeave * if !&diff | let b:winview = winsaveview() | endif
-    au BufEnter * if exists('b:winview') && !&diff | call winrestview(b:winview) | unlet! b:winview | endif
-  endif
-]])
+-- vim.cmd([[
+--   " When switching buffers, preserve window view.
+--   if v:version >= 700
+--     au BufLeave * if !&diff | let b:winview = winsaveview() | endif
+--     au BufEnter * if exists('b:winview') && !&diff | call winrestview(b:winview) | unlet! b:winview | endif
+--   endif
+-- ]])
 
 -- [[ Basic Keymaps ]]
 -- Set <space> as the leader key
@@ -224,7 +224,7 @@ cmp.setup {
     -- Source current buffer.
     { name = 'buffer' },
     { name = 'vsnip' },
-  },
+   },
 }
 
 -- Set my custom eybindins for plugins
