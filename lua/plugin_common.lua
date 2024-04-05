@@ -7,4 +7,5 @@ PLUGIN_TEMPLATE = {
   setup = function() end,
   after = 'plugin name',
   before = 'plugin name',
+  keymaps = function() end,
 }
