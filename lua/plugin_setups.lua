@@ -3,7 +3,7 @@
 require('lualine').setup {
   options = {
     icons_enabled = true,
-    theme = 'tokyonight',
+    theme = 'vscode',
     component_separators = '|',
     section_separators = '',
   },
@@ -14,20 +14,26 @@ require('Comment').setup()
 
 -- Enable `lukas-reineke/indent-blankline.nvim`
 -- See `:help indent_blankline.txt`
-require('indent_blankline').setup {
-  char = '┊',
-  show_trailing_blankline_indent = false,
+-- require('indent_blankline').setup {
+--   char = '┊',
+--   show_trailing_blankline_indent = false,
+-- }
+require("ibl").setup{
+  scope = {
+    show_start = false,
+  }
 }
 
 -- Gitsigns
 -- See `:help gitsigns.txt`
 require('gitsigns').setup {
   signs = {
-    add = { text = '+' },
-    change = { text = '~' },
-    delete = { text = '_' },
-    topdelete = { text = '‾' },
+    add          = { text = '│' },
+    change       = { text = '│' },
+    delete       = { text = '_' },
+    topdelete    = { text = '‾' },
     changedelete = { text = '~' },
+    untracked    = { text = '┆' },
   },
 }
 
@@ -85,6 +91,7 @@ require('telescope').setup {
       },
     },
   },
+  file_ignore_patterns = { "node_modules", "build", "builddir", "dist", }
 }
 
 -- Enable telescope fzf native, if installed
@@ -96,7 +103,9 @@ require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'vimdoc', 'vim', 'html', 'css', 'json', 'jsonc', 'json5', 'php', 'phpdoc', 'javascript', 'comment' },
 
-  highlight = { enable = true, },
+  highlight = {
+    enable = true,
+  },
   indent = { enable = false, disable = { 'python' } },
   incremental_selection = {
     enable = true,
@@ -154,25 +163,34 @@ require('nvim-treesitter.configs').setup {
 }
 
 -- Configure lsp servers
-local lspconfig = require("lspconfig");
-lspconfig.clangd.setup {
-  capabilities = {
-    offsetEncoding = { "utf-8" }
-  },
-  init_options = {
-    usePlaceholders = false,
-  },
-}
+-- local lspconfig = require("lspconfig");
+-- lspconfig.clangd.setup {
+--   capabilities = {
+--     offsetEncoding = { "utf-8" }
+--   },
+--   init_options = {
+--     usePlaceholders = false,
+--   },
+-- }
 
 -- Setup bufferline plugin (requires vim.opt.termguicolors = true)
 vim.opt.mousemoveevent = true
-require('bufferline').setup{
+require("bufferline").setup({
   options = {
     diagnostics = "nvim_lsp",
     diagnostics_indicator = function(count, level, _, _)
       local icon = level:match("error") and " " or " "
       return " " .. icon .. count
     end,
+    buffer_close_icon = "",
+    close_command = "bdelete %d",
+    close_icon = "",
+    indicator = {
+      style = "icon",
+      icon = " ",
+    },
+    left_trunc_marker = "",
+    modified_icon = "●",
     offsets = {
       {
         filetype = "neo-tree",
@@ -182,24 +200,59 @@ require('bufferline').setup{
       }
     },
     separator_style = "slant",
-    numbers = function(opts)
-      return string.format('%s', opts.raise(opts.ordinal))
-    end,
-  }
-}
+    numbers = function(opts) return string.format('%s', opts.raise(opts.ordinal)) end,
+    right_mouse_command = "bdelete! %d",
+    right_trunc_marker = "",
+    show_close_icon = false,
+    show_tab_indicators = true,
+  },
+  highlights = {
+   separator = {
+      fg = { attribute = 'bg', highlight = 'StatusLineNC' },
+    },
+    separator_visible = {
+      fg = { attribute = 'bg', highlight = 'StatusLineNC' },
+    },
+    separator_selected = {
+      fg = { attribute = 'bg', highlight = 'StatusLineNC' },
+    },
+  },
+})
 
 -- Setup toggleterm
 require('toggleterm').setup()
 
+-- Setup lsp signature
+-- require('lsp_signature').setup{
+--   bind = false,
+--   handler_opts = {
+--     border = "rounded"
+--   },
+--   hi_inline = function() return false end,
+--   hi_parameter = "LspSignatureActiveParameter",
+--   hint_enable = false,
+--   doc_lines = 0,
+-- }
+
+-- Setup nvim-ufo
+require('ufo').setup({
+  provider_selector = function(bufnr, filetype, buftype)
+    return {'treesitter', 'indent'}
+  end
+})
+
 -- Setup null-ls
 local null_ls = require('null-ls')
 null_ls.setup({
-  sources = { null_ls.builtins.formatting.clang_format },
-  on_init = function(new_client, _)
+
+  -- on_init = function(new_client, _)
     -- Fix the multiple offset_encoding when using the lsp_signature plugin.
-    new_client.offset_encoding = 'utf-8'
-  end,
+    -- new_client.offset_encoding = 'utf-8'
+  -- end,
 })
+
+-- Setup Move.nvim
+require('move').setup({})
 
 -- Setup nvim-autoparis with cmp
 require('nvim-autopairs').setup{}
@@ -216,9 +269,6 @@ require('auto-session').setup {
   pre_save_cmds = { 'Neotree action=close', "lua require 'dapui'.close()" },
   auto_restore_enabled = false,
 }
-
--- Setup hologram
-require('hologram').setup{}
 
 -- Rust tools
 local extension_path = vim.env.HOME .. '.local/share/nvim/mason/packages/codelldb/extension/'
@@ -263,11 +313,19 @@ dap.configurations.cpp = {
     end,
     cwd = "${workspaceFolder}",
     stopOnEntry = true,
-    args = {
-    },
+    args = { },
   }
 }
 dap.configurations.c = dap.configurations.cpp
+  -- Set arguments for C/C++ DAP debugger
+vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
+  local args = {}
+  for arg in ctx.args:gmatch('%S+') do
+    table.insert(args, arg)
+  end
+  dap.configurations.cpp[1].args = args
+  dap.configurations.c[1].args = args
+end, { desc = 'Set arguments to use when debugging' })
 
 -- Dap UI
 require("dapui").setup({
@@ -292,14 +350,6 @@ require("dapui").setup({
   }
 });
 
--- Define signs
-vim.fn.sign_define('DapBreakpoint', { text = '🔴' })
-vim.fn.sign_define('DapStopped', { text = '=>' })
-vim.fn.sign_define("LspDiagnosticsSignError", {text = " ", texthl = "LspDiagnosticsSignError"})
-vim.fn.sign_define("LspDiagnosticsSignWarning", {text = " ", texthl = "LspDiagnosticsSignWarning"})
-vim.fn.sign_define("LspDiagnosticsSignInformation", {text = " ", texthl = "LspDiagnosticsSignInformation"})
-vim.fn.sign_define("LspDiagnosticsSignHint", {text = "", texthl = "LspDiagnosticsSignHint"})
-
 -- Profiling annotations
 local util = require("perfanno.util")
 local bgcolor = vim.fn.synIDattr(vim.fn.hlID("Normal"), "bg", "gui")
@@ -308,3 +358,109 @@ require("perfanno").setup{
   line_highlights = util.make_bg_highlights(bgcolor, "#CC3300", 10),
   vt_highlight = util.make_fg_highlight("#CC3300"),
 }
+
+-- Flutter tools
+local flutter_format = true;
+require("flutter-tools").setup({
+  color = {
+    enabled = true,
+    background = true,
+    virtual_text = true,
+  },
+  lsp = {
+    settings = {
+      -- See  https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md#client-workspace-configuration
+      showTodos = true,
+      completeFunctionCalls = true,
+      -- analysisExcludedFolders = {"<path-to-flutter-sdk-packages>"},
+      renameFilesWithClasses = "prompt", -- "always"
+      enableSnippets = true,
+      updateImportsOnRename = true, -- Whether to update imports and other directives when files are renamed. Required for `FlutterRename` command.
+      lineLength = 100,
+    },
+    on_attach = function(_, bufnr)
+      local nmap = function(keys, func, desc)
+        if desc then
+          desc = 'LSP: ' .. desc
+        end
+
+        vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+      end
+
+      nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+      nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+
+      nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+      nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+      nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+      nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
+      nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+      nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+      nmap('<leader>ff', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+
+      require('telescope').load_extension("flutter")
+      nmap('<leader>ff', function()
+        require('telescope').extensions.flutter.commands()
+      end, '[F]lutter commands');
+
+      -- See `:help K` for why this keymap
+      nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+      -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+
+      -- Lesser used LSP functionality
+      nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+      -- Create a command `:Format` local to the LSP buffer
+      vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+        vim.lsp.buf.format()
+      end, { desc = 'Format current buffer with LSP' })
+
+      vim.api.nvim_buf_create_user_command(bufnr, 'FormatOnWriteOff', function(_)
+        flutter_format = false;
+      end, { desc = 'Format current buffer with LSP' })
+
+      vim.api.nvim_buf_create_user_command(bufnr, 'FormatOnWriteOn', function(_)
+        flutter_format = true;
+      end, { desc = 'Format current buffer with LSP' })
+
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        pattern = {"*.dart"},
+        callback = function(_)
+          if flutter_format then
+            vim.lsp.buf.format()
+          end
+        end,
+      })
+    end,
+  }
+})
+
+-- Presence.nvim
+require("presence").setup({
+    -- Rich Presence text options
+    editing_text        = "Editing %s",               -- Format string rendered when an editable file is loaded in the buffer (either string or function(filename: string): string)
+    file_explorer_text  = "Browsing %s",              -- Format string rendered when browsing a file explorer (either string or function(file_explorer_name: string): string)
+    git_commit_text     = "Committing changes",       -- Format string rendered when committing changes in git (either string or function(filename: string): string)
+    plugin_manager_text = "Managing plugins",         -- Format string rendered when managing plugins (either string or function(plugin_manager_name: string): string)
+    reading_text        = "Reading %s",               -- Format string rendered when a read-only or unmodifiable file is loaded in the buffer (either string or function(filename: string): string)
+    workspace_text      = "Working on %s",            -- Format string rendered when in a git repository (either string or function(project_name: string|nil, filename: string): string)
+    line_number_text    = "Line %s out of %s",        -- Format string rendered when `enable_line_number` is set to true (either string or function(line_number: number, line_count: number): string)
+})
+
+-- Dressing
+require("dressing").setup()
+
+-- Setup neogen
+require('neogen').setup({
+  -- snippet_engine = "luasnip",
+  snippet_engine = "vsnip"
+})
+
+-- Autoindent in PHP files.
+vim.api.nvim_create_autocmd('BufEnter', {
+  pattern = {"*.php"},
+  callback = function(_)
+      vim.cmd('set autoindent')
+  end,
+})
+

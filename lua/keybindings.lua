@@ -1,3 +1,10 @@
+-- Bind kj to escape key
+vim.keymap.set('i', 'jj', '<Esc>')
+
+-- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
+vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').commands, { desc = '[ ] Find commands' })
@@ -19,7 +26,7 @@ vim.keymap.set('n', '<leader>sk', require('telescope.builtin').keymaps, { desc =
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = 'Show diagnostics float' })
 
 -- BufferLine keymaps
 vim.keymap.set('n', 'H', ':BufferLineCyclePrev<cr>', { desc = 'Move to previous buffer' })
@@ -39,7 +46,8 @@ vim.keymap.set('n', '<A-S-l>', ':BufferLineMoveNext<cr>', { desc = 'Move buffer 
 -- Buffer actions
 vim.keymap.set('n', '<leader>c', ':Bwipeout<cr>', { desc = 'Close current buffer' })
 vim.keymap.set('n', '<leader>cc', ':Bwipeout!<cr>', { desc = 'Forcefuly Close current buffer' })
-vim.keymap.set('n', '<leader>w', ':w<cr>', { desc = 'Write changes to buffer' })
+vim.keymap.set('n', '<leader>w', ':w<cr>', { desc = '[W]rite changes to buffer' })
+vim.keymap.set('n', '<leader>wa', ':wa<cr>', { desc = '[W]rite changes to [a]ll buffer' })
 vim.keymap.set('n', '<leader>q', ':q<cr>', { desc = 'Quit' })
 vim.keymap.set('n', '<leader>qq', ':qa<cr>', { desc = 'Quit all' })
 vim.keymap.set('n', '<A-d>', ':t .<cr>', { desc = 'Duplicate line below' })
@@ -94,6 +102,9 @@ vim.keymap.set('t', '<C-l>', [[<esc><cmd>wincmd l<cr>]], { desc = 'Move to right
 -- Session management
 vim.keymap.set('n', '<leader>ss', ':SearchSession<cr>', { desc = '[S]earch [S]ession' })
 vim.keymap.set('n', '<leader>rs', ':SessionRestore<cr>', { desc = '[R]estore [S]ession' })
+
+-- Doxygen generation
+vim.keymap.set('n', '<leader>dg', require('neogen').generate, { desc = "Generate [D]oxy[G]en comments", noremap = true, silent = true, })
 
 -- DAP UI
 local dapui = require('dapui')
@@ -153,7 +164,10 @@ dap.listeners.after.event_terminated["dapui_config"] = close_debug_ui
 dap.listeners.before.event_exited["dapui_config"] = close_debug_ui
 
 -- Useful workflow keybindings
-vim.keymap.set('n', '<C-F5>', ':wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { remap = true, desc = "Rust ninja && ./main" })
-vim.keymap.set('i', '<C-F5>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { desc = "Rust ninja && ./main" })
-vim.keymap.set('n', '<F29>', ':wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { remap = true, desc = "Rust ninja && ./main" })
-vim.keymap.set('i', '<F29>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>ninja && ./main<cr>', { desc = "Rust ninja && ./main" })
+vim.keymap.set('n', '<C-F5>', ':wa<cr>:ToggleTerm<cr>i<C-u>make run<cr>', { remap = true, desc = "make run" })
+vim.keymap.set('i', '<C-F5>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>make run<cr>', { desc = "make run" })
+vim.keymap.set('n', '<F29>', ':wa<cr>:ToggleTerm<cr>i<C-u>make run<cr>', { remap = true, desc = "make run" })
+vim.keymap.set('i', '<F29>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>make run<cr>', { desc = "make run" })
+
+vim.keymap.set('n', '<as-B>', ':wa<cr>:ToggleTerm<cr>i<C-u>make build<cr>', { remap = true, desc = "make build" })
+vim.keymap.set('i', '<as-B>', '<ESC>:wa<cr>:ToggleTerm<cr>i<C-u>make build<cr>', { remap = true, desc = "make build" })

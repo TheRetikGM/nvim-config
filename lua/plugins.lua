@@ -20,7 +20,10 @@ require('packer').startup(function(use)
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
-      'j-hui/fidget.nvim',
+      {
+        'j-hui/fidget.nvim',
+        tag = 'legacy',
+      },
 
       -- Additional lua configuration, makes nvim stuff amazing
       'folke/neodev.nvim',
@@ -31,7 +34,7 @@ require('packer').startup(function(use)
     'hrsh7th/nvim-cmp',
     requires = {
       'hrsh7th/cmp-nvim-lsp',   -- CMP integration with lsp
-      'L3MON4D3/LuaSnip',       -- Code snippets
+      -- 'L3MON4D3/LuaSnip',       -- Code snippets
       'saadparwaiz1/cmp_luasnip',
       'hrsh7th/cmp-nvim-lsp-signature-help',    -- Function signature while typing
       'hrsh7th/cmp-vsnip',
@@ -40,6 +43,15 @@ require('packer').startup(function(use)
       'hrsh7th/vim-vsnip',
     },
   }
+
+  -- Sinagure help for functions.
+  -- use { 'ray-x/lsp_signature.nvim' }
+
+  -- -- Pretty folding
+  use {'kevinhwang91/nvim-ufo', requires = 'kevinhwang91/promise-async'}
+
+  -- -- Doxygen highlights and generation.
+  use { 'danymat/neogen' }
 
   use { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -95,11 +107,11 @@ require('packer').startup(function(use)
   -- Duplicate cursors and more
   use { 'mg979/vim-visual-multi', branch = 'master' }
   -- Move lines and blocks around
-  use 'ur4ltz/move.nvim'
+  use { 'fedepujol/move.nvim' }
   -- Terminal
   use { 'akinsho/toggleterm.nvim', tag = '*' }
   -- Inject lsp diagnostics, code actions and more. Also format code.
-  use { 'jose-elias-alvarez/null-ls.nvim' }
+  use { 'nvimtools/none-ls.nvim' }
   -- Automatically complete pair characters
   use 'windwp/nvim-autopairs'
   -- Manage sessions
@@ -112,8 +124,6 @@ require('packer').startup(function(use)
     -- There was a bug when some file was renamed and it didn't work
     commit = '8b43922b893790a7f79951d4616369128758d215'
   }
-  -- Display images
-  use { 'edluffy/hologram.nvim' }
   -- Debugging
   use {
     'mfussenegger/nvim-dap',
@@ -125,6 +135,25 @@ require('packer').startup(function(use)
   use { 't-troebst/perfanno.nvim' }
   -- Auto indentation for lisp-like languages (I use it for EWW configuration files)
   use { 'gpanders/nvim-parinfer' }
+  -- Pretty message boxes. For example when you want to rename a variable.
+  use { 'stevearc/dressing.nvim' }
+  -- Flutter compatibility
+  use {
+    'akinsho/flutter-tools.nvim',
+    lazy = false,
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'stevearc/dressing.nvim'
+    }
+  }
+  -- VSCode theme
+  use 'Mofiqul/vscode.nvim'
+
+  -- Show nvim activity in discord
+  use 'andweeb/presence.nvim';
+
+  -- Connect mason and null-ls to make linteres and formatters work.
+  use 'jay-babu/mason-null-ls.nvim'
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

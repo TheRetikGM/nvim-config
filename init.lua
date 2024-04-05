@@ -23,7 +23,17 @@ vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 -- Set colorscheme
 vim.o.termguicolors = true
-vim.cmd [[colorscheme tokyonight]]
+local c = require('vscode.colors')
+require('vscode').setup({
+    style = 'dark',
+    transparent = false,
+    italic_comments = true,
+    underline_links = true,
+    disable_nvimtree_bg = false,
+        -- Override colors (see ./lua/vscode/colors.lua)
+})
+require('vscode').load()
+-- vim.cmd [[colorscheme vscode]]
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect,preview'
 -- Set relative line numbering
@@ -32,10 +42,11 @@ vim.o.relativenumber = true
 vim.o.cmdheight = 0
 -- Highlight current line
 vim.o.cursorline = true
--- Enable treesitter folding
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "nvim_treesitter#foldexpr()"
-vim.o.foldlevel = 99
+-- Enable treesitter folding using nvim-ufo
+vim.o.foldcolumn = '1' -- '0' is not bad
+vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
 
 -- vim.cmd([[
 --   " When switching buffers, preserve window view.
@@ -52,8 +63,32 @@ vim.o.foldlevel = 99
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- Setup plugins
-require('plugin_setups')
+vim.diagnostic.config({
+    virtual_text = true,
+    update_in_insert = true,
+    underline = true,
+    severity_sort = true,
+    signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = "",
+          [vim.diagnostic.severity.WARN] = "",
+          [vim.diagnostic.severity.INFO] = "",
+          [vim.diagnostic.severity.HINT] = "",
+        },
+        numhl = {
+          [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
+          [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
+          [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
+          [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
+        },
+        linehl = {
+          [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
+          [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
+          [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
+          [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
+        },
+    }
+})
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
@@ -76,13 +111,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
+local lsp_on_attach = function(client, bufnr)
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -107,11 +136,6 @@ local on_attach = function(_, bufnr)
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  nmap('<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -119,26 +143,55 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
+-- Set arguments for C/C++ DAP debugger
+vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
+  local dap = require('dap')
+  local args = {}
+  for arg in ctx.args:gmatch('%S+') do
+    table.insert(args, arg)
+  end
+  dap.configurations.cpp[0].args = args
+  dap.configurations.c[0].args = args
+end, { desc = 'Set arguments to use when debugging' })
+
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
-  clangd = {},
+  clangd = {
+    flags = {allow_incremental_sync = true, debounce_text_changes = 500},
+    cmd = {
+      "clangd",
+      "--background-index",
+      "--suggest-missing-includes",
+      "--clang-tidy",
+      "--header-insertion=iwyu",
+      "-j 8",
+      "--malloc-trim",
+      "--pch-storage=memory",
+    },
+  },
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
   },
-  pylsp = {},
   rust_analyzer = {},
   cmake = {},
   omnisharp = {},
-  intelephense = {},
+  -- intelephense = {
+  --   files = {
+  --     maxSize = 1000000,
+  --   }
+  -- },
   html = {},
   docker_compose_language_service = {},
+  typst_lsp = {
+    exportPdf = "never";
+  },
 }
 
 -- Setup neovim lua configuration
@@ -146,10 +199,20 @@ require('neodev').setup()
 --
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+-- local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    -- delay update diagnostics
+    update_in_insert = true,
+  }
+)
 
 -- Setup mason so it can manage external tooling
 require('mason').setup()
+require('mason-null-ls').setup({
+  handlers = {},
+});
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
@@ -160,18 +223,29 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    if server_name == "intelephense" then
-      require('lspconfig').intelephense.setup {
+    -- if server_name == "intelephense" then
+    --   require('lspconfig').intelephense.setup {
+    --     capabilities = capabilities,
+    --     on_attach = lsp_on_attach,
+    --     settings = servers["intelephense"],
+    --     root_dir = function(_)
+    --       return vim.fn.getcwd()
+    --     end
+    --   }
+    --   return
+    -- end
+    if server_name == "pylsp" then
+      require('lspconfig').pylsp.setup {
         capabilities = capabilities,
-        on_attach = on_attach,
-        settings = servers["intelephense"],
-        root_dir = require 'lspconfig'.util.root_pattern('index.php')
+        on_attach = lsp_on_attach,
+        settings = servers["pylsp"],
+        root_dir = require 'lspconfig'.util.root_pattern('.')
       }
       return
     end
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
-      on_attach = on_attach,
+      on_attach = lsp_on_attach,
       settings = servers[server_name],
     }
   end,
@@ -182,24 +256,31 @@ require('fidget').setup()
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
-local luasnip = require 'luasnip'
+-- local luasnip = require 'luasnip'
 
-cmp.setup {
+-- Setup plugins
+require('plugin_setups')
+
+cmp.setup({
   snippet = {
     expand = function(args)
-      luasnip.lsp_expand(args.body)
+      -- luasnip.lsp_expand(args.body)
+      vim.fn["vsnip#anonymous"](args.body)
     end,
+  },
+  window = {
+
   },
   mapping = cmp.mapping.preset.insert {
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
-    ['<CR>'] = cmp.mapping.confirm(),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
+      -- elseif luasnip.expand_or_jumpable() then
+      --   luasnip.expand_or_jump()
       else
         fallback()
       end
@@ -214,21 +295,38 @@ cmp.setup {
       end
     end, { 'i', 's' }),
   },
-  sources = {
+  sources = cmp.config.sources({
     { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    -- { name = 'luasnip' },
     -- File paths
     { name = 'path' },
     -- Function parameters while typing
     { name = 'nvim_lsp_signature_help' },
+    { name = 'vsnip' },
+  }, {
     -- Source current buffer.
     { name = 'buffer' },
-    { name = 'vsnip' },
-   },
-}
+  }),
+})
+
+-- `/` cmdline setup.
+-- cmp.setup.cmdline('/', {
+--   mapping = cmp.mapping.preset.cmdline(),
+--   sources = {
+--     { name = 'buffer' }
+--   }
+-- })
+
+-- `:` cmdline setup.
+-- cmp.setup.cmdline(':', {
+--   mapping = cmp.mapping.preset.cmdline(),
+--   sources = cmp.config.sources({
+--     { name = 'path' }
+--   }, {
+--     { name = 'cmdline' }
+--   })
+-- })
 
 -- Set my custom eybindins for plugins
 require('keybindings')
 
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
