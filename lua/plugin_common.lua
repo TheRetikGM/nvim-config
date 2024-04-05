@@ -4,6 +4,8 @@ PLUGINS = {}
 PLUGIN_TEMPLATE = {
   -- Table to pass to Packer's `use` function.
   packer = {},
+  -- Function to execute during init phase (that is before any setup function is called).
+  init = function() end,
   -- Setuping function for this plugin. NOTE: You need to require the plugin.
   setup = function() end,
   -- Name of the plugin to setup after
