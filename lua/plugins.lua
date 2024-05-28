@@ -47,10 +47,10 @@ require('packer').startup(function(use)
   -- Sinagure help for functions.
   -- use { 'ray-x/lsp_signature.nvim' }
 
-  -- -- Pretty folding
+  -- DEL: Pretty folding
   use {'kevinhwang91/nvim-ufo', requires = 'kevinhwang91/promise-async'}
 
-  -- -- Doxygen highlights and generation.
+  -- DEL: Doxygen highlights and generation.
   use { 'danymat/neogen' }
 
   use { -- Highlight, edit, and navigate code
@@ -76,10 +76,10 @@ require('packer').startup(function(use)
   use 'folke/tokyonight.nvim'
   use 'rebelot/kanagawa.nvim'
 
-  use 'nvim-lualine/lualine.nvim' -- Fancier statusline
-  use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
+  use 'nvim-lualine/lualine.nvim' -- DEL: Fancier statusline
+  use 'lukas-reineke/indent-blankline.nvim' -- DEL: Add indentation guides even on blank lines
+  use 'numToStr/Comment.nvim' -- DEL: "gc" to comment visual regions/lines
+  use 'tpope/vim-sleuth' -- DEL: Detect tabstop and shiftwidth automatically
 
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
@@ -87,7 +87,7 @@ require('packer').startup(function(use)
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
-  -- Neo tree for file explorer
+  -- DEL: Neo tree for file explorer
   -- Unless you are still migrating, remove the deprecated commands from v1.x
   vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
   use {
@@ -102,42 +102,43 @@ require('packer').startup(function(use)
 
   -- Display GUI like buffer tabs
   use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
-  -- Close buffers without messing up the layout
+  -- DEL: Close buffers without messing up the layout
   use 'famiu/bufdelete.nvim'
-  -- Duplicate cursors and more
+  -- DEL: Duplicate cursors and more
   use { 'mg979/vim-visual-multi', branch = 'master' }
-  -- Move lines and blocks around
+  -- DEL: Move lines and blocks around
   use { 'fedepujol/move.nvim' }
-  -- Terminal
+  -- DEL: Terminal
   use { 'akinsho/toggleterm.nvim', tag = '*' }
   -- Inject lsp diagnostics, code actions and more. Also format code.
   use { 'nvimtools/none-ls.nvim' }
-  -- Automatically complete pair characters
+  -- DEL: Automatically complete pair characters
   use 'windwp/nvim-autopairs'
-  -- Manage sessions
+  -- DEL: Manage sessions
   use {
     'rmagatti/session-lens',
     requires = {'nvim-telescope/telescope.nvim'},
   }
-  use { -- requred by session-lens
+  -- DEL: Requred by session-lens
+  use {
     'rmagatti/auto-session',
     -- There was a bug when some file was renamed and it didn't work
     commit = '8b43922b893790a7f79951d4616369128758d215'
   }
-  -- Debugging
+  -- DEL: Debugging
   use {
     'mfussenegger/nvim-dap',
     requires = { 'rcarriga/nvim-dap-ui' },
   }
-  -- Rust tools - Automatically configure rust_analyzer
+  -- DEL: Rust tools - Automatically configure rust_analyzer
   use { 'simrat39/rust-tools.nvim' }
-  -- Profiling annotations
+  -- DEL: Profiling annotations
   use { 't-troebst/perfanno.nvim' }
-  -- Auto indentation for lisp-like languages (I use it for EWW configuration files)
+  -- DEL: Auto indentation for lisp-like languages (I use it for EWW configuration files)
   use { 'gpanders/nvim-parinfer' }
-  -- Pretty message boxes. For example when you want to rename a variable.
+  -- DEL: Pretty message boxes. For example when you want to rename a variable.
   use { 'stevearc/dressing.nvim' }
-  -- Flutter compatibility
+  -- DEL: Flutter compatibility
   use {
     'akinsho/flutter-tools.nvim',
     lazy = false,
@@ -149,11 +150,13 @@ require('packer').startup(function(use)
   -- VSCode theme
   use 'Mofiqul/vscode.nvim'
 
-  -- Show nvim activity in discord
+  -- DEL: Show nvim activity in discord
   use 'andweeb/presence.nvim';
 
   -- Connect mason and null-ls to make linteres and formatters work.
   use 'jay-babu/mason-null-ls.nvim'
+
+  use 'nvim-neotest/nvim-nio'
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

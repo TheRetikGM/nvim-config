@@ -1,4 +1,4 @@
--- Set lualine as statusline
+-- DEL: Set lualine as statusline
 -- See `:help lualine.txt`
 require('lualine').setup {
   options = {
@@ -9,10 +9,10 @@ require('lualine').setup {
   },
 }
 
--- Enable Comment.nvim
+-- DEL: Enable Comment.nvim
 require('Comment').setup()
 
--- Enable `lukas-reineke/indent-blankline.nvim`
+-- DEL: Enable `lukas-reineke/indent-blankline.nvim`
 -- See `:help indent_blankline.txt`
 -- require('indent_blankline').setup {
 --   char = '┊',
@@ -173,7 +173,7 @@ require('nvim-treesitter.configs').setup {
 --   },
 -- }
 
--- Setup bufferline plugin (requires vim.opt.termguicolors = true)
+-- DEL: Setup bufferline plugin (requires vim.opt.termguicolors = true)
 vim.opt.mousemoveevent = true
 require("bufferline").setup({
   options = {
@@ -219,7 +219,7 @@ require("bufferline").setup({
   },
 })
 
--- Setup toggleterm
+-- DEL: Setup toggleterm
 require('toggleterm').setup()
 
 -- Setup lsp signature
@@ -234,7 +234,7 @@ require('toggleterm').setup()
 --   doc_lines = 0,
 -- }
 
--- Setup nvim-ufo
+-- DEL: Setup nvim-ufo
 require('ufo').setup({
   provider_selector = function(bufnr, filetype, buftype)
     return {'treesitter', 'indent'}
@@ -244,17 +244,16 @@ require('ufo').setup({
 -- Setup null-ls
 local null_ls = require('null-ls')
 null_ls.setup({
-
   -- on_init = function(new_client, _)
     -- Fix the multiple offset_encoding when using the lsp_signature plugin.
     -- new_client.offset_encoding = 'utf-8'
   -- end,
 })
 
--- Setup Move.nvim
+-- DEL: Setup Move.nvim
 require('move').setup({})
 
--- Setup nvim-autoparis with cmp
+-- DEL: Setup nvim-autoparis with cmp
 require('nvim-autopairs').setup{}
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
 local cmp = require('cmp')
@@ -263,14 +262,14 @@ cmp.event:on(
   cmp_autopairs.on_confirm_done()
 )
 
--- Setup session management
+-- DEL: Setup session management
 require('auto-session').setup {
   auto_save_enabled = true,
   pre_save_cmds = { 'Neotree action=close', "lua require 'dapui'.close()" },
   auto_restore_enabled = false,
 }
 
--- Rust tools
+-- DEL: Rust tools
 local extension_path = vim.env.HOME .. '.local/share/nvim/mason/packages/codelldb/extension/'
 local codelldb_path = extension_path .. 'adapter/codelldb'
 local liblldb_path = extension_path .. 'lldb/lib/liblldb.so'
@@ -289,7 +288,7 @@ rt.setup({
   },
 })
 
--- Debugging with nvim-dap
+-- DEL: Debugging with nvim-dap
 local dap = require('dap')
 dap.adapters = {
   lldb = {
@@ -299,7 +298,7 @@ dap.adapters = {
   },
   cppdbg = {
     type = 'executable',
-    command = '/home/kuba/.local/share/cppdbg/extension/debugAdapters/bin/OpenDebugAD7',
+    command = '/home/kuba/.vscode/extensions/ms-vscode.cpptools-1.19.9-linux-x64/debugAdapters/bin/OpenDebugAD7',
     name = 'cppdbg'
   }
 }
@@ -327,7 +326,7 @@ vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
   dap.configurations.c[1].args = args
 end, { desc = 'Set arguments to use when debugging' })
 
--- Dap UI
+-- DEL: Dap UI
 require("dapui").setup({
   layouts = {
     {
@@ -350,7 +349,7 @@ require("dapui").setup({
   }
 });
 
--- Profiling annotations
+-- DEL: Profiling annotations
 local util = require("perfanno.util")
 local bgcolor = vim.fn.synIDattr(vim.fn.hlID("Normal"), "bg", "gui")
 require("perfanno").setup{
@@ -359,7 +358,7 @@ require("perfanno").setup{
   vt_highlight = util.make_fg_highlight("#CC3300"),
 }
 
--- Flutter tools
+-- DEL: Flutter tools
 local flutter_format = true;
 require("flutter-tools").setup({
   color = {
@@ -435,7 +434,7 @@ require("flutter-tools").setup({
   }
 })
 
--- Presence.nvim
+-- DEL: Presence.nvim
 require("presence").setup({
     -- Rich Presence text options
     editing_text        = "Editing %s",               -- Format string rendered when an editable file is loaded in the buffer (either string or function(filename: string): string)
@@ -447,10 +446,10 @@ require("presence").setup({
     line_number_text    = "Line %s out of %s",        -- Format string rendered when `enable_line_number` is set to true (either string or function(line_number: number, line_count: number): string)
 })
 
--- Dressing
+-- DEL: Dressing
 require("dressing").setup()
 
--- Setup neogen
+-- DEL: Setup neogen
 require('neogen').setup({
   -- snippet_engine = "luasnip",
   snippet_engine = "vsnip"

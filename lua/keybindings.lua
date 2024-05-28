@@ -1,7 +1,7 @@
 -- Bind kj to escape key
 vim.keymap.set('i', 'jj', '<Esc>')
 
--- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
+-- DEL: Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
 vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
 vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
 
@@ -28,7 +28,7 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = 'Show diagnostics float' })
 
--- BufferLine keymaps
+-- DEL: BufferLine keymaps
 vim.keymap.set('n', 'H', ':BufferLineCyclePrev<cr>', { desc = 'Move to previous buffer' })
 vim.keymap.set('n', 'L', ':BufferLineCycleNext<cr>', { desc = 'Move to next buffer' })
 vim.keymap.set('n', '<A-1>', ':BufferLineGoToBuffer 1<cr>', { desc = 'Go to BufferLine tab 1' })
@@ -44,7 +44,9 @@ vim.keymap.set('n', '<A-S-h>', ':BufferLineMovePrev<cr>', { desc = 'Move buffer 
 vim.keymap.set('n', '<A-S-l>', ':BufferLineMoveNext<cr>', { desc = 'Move buffer to the right' })
 
 -- Buffer actions
+-- DEL:
 vim.keymap.set('n', '<leader>c', ':Bwipeout<cr>', { desc = 'Close current buffer' })
+-- DEL:
 vim.keymap.set('n', '<leader>cc', ':Bwipeout!<cr>', { desc = 'Forcefuly Close current buffer' })
 vim.keymap.set('n', '<leader>w', ':w<cr>', { desc = '[W]rite changes to buffer' })
 vim.keymap.set('n', '<leader>wa', ':wa<cr>', { desc = '[W]rite changes to [a]ll buffer' })
@@ -70,7 +72,7 @@ vim.keymap.set('n', '<C-k>', ':wincmd k<cr>', { desc = 'Move to up split' })
 vim.keymap.set('n', '<C-l>', ':wincmd l<cr>', { desc = 'Move to right split' })
 vim.keymap.set('n', '<C-q>', ':wincmd q<cr>', { desc = 'Close window' })
 
--- Toggle NeoTree
+-- DEL: Toggle NeoTree
 local neotree_open = false
 local function neotree_toggle(_)
   neotree_open = not neotree_open
@@ -78,7 +80,7 @@ local function neotree_toggle(_)
 end
 vim.keymap.set('n', '<leader>e', neotree_toggle, { desc = 'Toggle File [E]xplorer' })
 
--- Move.nvim actions
+-- DEL: Move.nvim actions
 vim.keymap.set('n', '<A-j>', ':MoveLine(1)<cr>', { desc = 'Move line up' })
 vim.keymap.set('n', '<A-k>', ':MoveLine(-1)<cr>', { desc = 'Move line down' })
 vim.keymap.set('n', '<A-h>', ':MoveHChar(1)<cr>', { desc = 'Move character right' })
@@ -88,7 +90,7 @@ vim.keymap.set('v', '<A-k>', ':MoveBlock(-1)<cr>', { desc = 'Move block down' })
 vim.keymap.set('v', '<A-h>', ':MoveHBlock(1)<cr>', { desc = 'Move block right' })
 vim.keymap.set('v', '<A-h>', ':MoveHBlock(1)<cr>', { desc = 'Move block right' })
 
--- ToggleTerm keymaps
+-- DEL: ToggleTerm keymaps
 vim.keymap.set('n', '<leader>tt', ':ToggleTerm direction=horizontal<cr>', { desc = 'Toggle bottom terminal' })
 vim.keymap.set('n', '<leader>tf', ':ToggleTerm direction=float<cr>', { desc = 'Toggle floating terminal' })
 vim.keymap.set('n', '<F7>', ':ToggleTerm<cr>', { desc = 'Toggle terminal' })
@@ -99,14 +101,14 @@ vim.keymap.set('t', '<C-j>', [[<esc><cmd>wincmd j<cr>]], { desc = 'Move to down 
 vim.keymap.set('t', '<C-k>', [[<esc><cmd>wincmd k<cr>]], { desc = 'Move to up split' })
 vim.keymap.set('t', '<C-l>', [[<esc><cmd>wincmd l<cr>]], { desc = 'Move to right split' })
 
--- Session management
+-- DEL: Session management
 vim.keymap.set('n', '<leader>ss', ':SearchSession<cr>', { desc = '[S]earch [S]ession' })
 vim.keymap.set('n', '<leader>rs', ':SessionRestore<cr>', { desc = '[R]estore [S]ession' })
 
--- Doxygen generation
+-- DEL: Doxygen generation
 vim.keymap.set('n', '<leader>dg', require('neogen').generate, { desc = "Generate [D]oxy[G]en comments", noremap = true, silent = true, })
 
--- DAP UI
+-- DEL: DAP UI
 local dapui = require('dapui')
 local debug_ui = {
   opened = false,    -- Current state of dapui
@@ -147,7 +149,7 @@ local function toggle_debug_ui(opts)
 end
 vim.keymap.set('n', '<F8>', toggle_debug_ui, { desc = '[D]ap[U]i toggle' })
 
--- Nvim DAP
+-- DEL: Nvim DAP
 local dap = require('dap')
 vim.keymap.set('n', '<F3>', dap.terminate, { desc = 'Stop debugging' })
 vim.keymap.set('n', '<F4>', dap.restart, { desc = 'Restart debugging' })

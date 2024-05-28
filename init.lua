@@ -42,7 +42,7 @@ vim.o.relativenumber = true
 vim.o.cmdheight = 0
 -- Highlight current line
 vim.o.cursorline = true
--- Enable treesitter folding using nvim-ufo
+-- DEL: Enable treesitter folding using nvim-ufo
 vim.o.foldcolumn = '1' -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
@@ -143,7 +143,7 @@ local lsp_on_attach = function(client, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
--- Set arguments for C/C++ DAP debugger
+-- DEL: Set arguments for C/C++ DAP debugger
 vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
   local dap = require('dap')
   local args = {}
@@ -187,8 +187,6 @@ local servers = {
   --     maxSize = 1000000,
   --   }
   -- },
-  html = {},
-  docker_compose_language_service = {},
   typst_lsp = {
     exportPdf = "never";
   },
