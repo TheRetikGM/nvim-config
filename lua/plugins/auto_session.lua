@@ -12,4 +12,5 @@ PLUGINS.auto_session = {
       auto_restore_enabled = false,
     }
   end,
+  prio = 100,
 }

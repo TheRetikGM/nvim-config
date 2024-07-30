@@ -1,10 +1,11 @@
-
 -- Install plugins
 require('plugins')
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
 
+-- Number of lines to start scrolling from
+vim.o.scrolloff = 10
 -- Set highlight on search
 vim.o.hlsearch = false
 -- Make line numbers default
@@ -42,11 +43,13 @@ vim.o.relativenumber = true
 vim.o.cmdheight = 0
 -- Highlight current line
 vim.o.cursorline = true
--- DEL: Enable treesitter folding using nvim-ufo
-vim.o.foldcolumn = '1' -- '0' is not bad
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-vim.o.foldlevelstart = 99
-vim.o.foldenable = true
+
+-- Execute `init` function on each plugin
+FOR_EACH_PLUGIN(function(plugin)
+  if plugin.init ~= nil then
+    plugin.init()
+  end
+end)
 
 -- vim.cmd([[
 --   " When switching buffers, preserve window view.
@@ -144,15 +147,15 @@ local lsp_on_attach = function(client, bufnr)
 end
 
 -- DEL: Set arguments for C/C++ DAP debugger
-vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
-  local dap = require('dap')
-  local args = {}
-  for arg in ctx.args:gmatch('%S+') do
-    table.insert(args, arg)
-  end
-  dap.configurations.cpp[0].args = args
-  dap.configurations.c[0].args = args
-end, { desc = 'Set arguments to use when debugging' })
+-- vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
+--   local dap = require('dap')
+--   local args = {}
+--   for arg in ctx.args:gmatch('%S+') do
+--     table.insert(args, arg)
+--   end
+--   dap.configurations.cpp[0].args = args
+--   dap.configurations.c[0].args = args
+-- end, { desc = 'Set arguments to use when debugging' })
 
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -179,7 +182,7 @@ local servers = {
       telemetry = { enable = false },
     },
   },
-  rust_analyzer = {},
+  rust_analyzer = 'ignore',
   cmake = {},
   omnisharp = {},
   -- intelephense = {
@@ -193,7 +196,7 @@ local servers = {
 }
 
 -- Setup neovim lua configuration
-require('neodev').setup()
+require('lazydev').setup()
 --
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -241,6 +244,11 @@ mason_lspconfig.setup_handlers {
       }
       return
     end
+
+    if servers[server_name] == 'ignore' then
+      return
+    end
+
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
       on_attach = lsp_on_attach,

@@ -19,6 +19,7 @@ PLUGINS.neotree = {
   },
   keymaps = function()
     vim.keymap.set('n', '<leader>e', neotree_toggle, { desc = 'Toggle File [E]xplorer' })
-  end
+  end,
+  prio = 30,
 }
 

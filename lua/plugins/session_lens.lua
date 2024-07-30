@@ -9,4 +9,5 @@ PLUGINS.session_lens = {
     vim.keymap.set('n', '<leader>rs', ':SessionRestore<cr>', { desc = '[R]estore [S]ession' })
   end,
   after = 'auto_session',
+  prio = 90,
 }

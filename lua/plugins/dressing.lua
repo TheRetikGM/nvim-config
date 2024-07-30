@@ -2,4 +2,5 @@
 PLUGINS.dressing = {
   packer = { 'stevearc/dressing.nvim' },
   setup = function() require("dressing").setup() end,
+  prio = 150,
 }

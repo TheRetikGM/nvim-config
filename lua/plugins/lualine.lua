@@ -11,5 +11,6 @@ PLUGINS.lualine = {
         section_separators = '',
       },
     }
-  end
+  end,
+  prio = -40,
 }

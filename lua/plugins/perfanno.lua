@@ -9,5 +9,6 @@ PLUGINS.perfanno = {
       line_highlights = util.make_bg_highlights(bgcolor, "#CC3300", 10),
       vt_highlight = util.make_fg_highlight("#CC3300"),
     }
-  end
+  end,
+  prio = 130,
 }

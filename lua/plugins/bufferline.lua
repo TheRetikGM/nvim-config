@@ -1,9 +1,7 @@
-require('../plugin_common.lua')
-
 PLUGINS.bufferline = {
   packer = {
     'akinsho/bufferline.nvim',
-    tag = "v3.*",
+    tag = "v4.*",
     requires = 'nvim-tree/nvim-web-devicons'
   },
   setup = function()
@@ -68,4 +66,5 @@ PLUGINS.bufferline = {
     vim.keymap.set('n', '<A-S-h>', ':BufferLineMovePrev<cr>', { desc = 'Move buffer to the left' })
     vim.keymap.set('n', '<A-S-l>', ':BufferLineMoveNext<cr>', { desc = 'Move buffer to the right' })
   end,
+  prio = 30,
 }

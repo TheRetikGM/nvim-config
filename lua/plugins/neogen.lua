@@ -10,4 +10,5 @@ PLUGINS.neogen = {
   keymaps = function()
     vim.keymap.set('n', '<leader>dg', require('neogen').generate, { desc = "Generate [D]oxy[G]en comments", noremap = true, silent = true, })
   end,
+  prio = 20,
 }

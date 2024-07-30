@@ -1,5 +1,3 @@
-require('../plugin_common.lua')
-
 -- Automaticaly expand pairs
 -- Before        Input         After
 -- ------------------------------------
@@ -19,5 +17,6 @@ PLUGINS.autopairs = {
     )
   end,
   after = 'cmp',
+  prio = 80,
 }
 

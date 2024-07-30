@@ -1,21 +1,23 @@
 local dapui = require('dapui')
 local debug_ui = {
-  opened = false,    -- Current state of dapui
-  neotree_opened = false,   -- If neotree was opened before opening the dapui
-  toggleterm_opened = false,  -- If toggle term was opened before the dapui
+  opened = false,            -- Current state of dapui
+  neotree_opened = false,    -- If neotree was opened before opening the dapui
+  toggleterm_opened = false, -- If toggle term was opened before the dapui
 }
 local function toggle_debug_ui(opts)
   debug_ui.opened = not debug_ui.opened
-  if debug_ui.opened then  -- Show debug UI
+  if debug_ui.opened then -- Show debug UI
     -- Hide neotree
     if neotree_open then
       debug_ui.neotree_opened = true
       neotree_toggle()
-    else debug_ui.neotree_opened = false end
+    else
+      debug_ui.neotree_opened = false
+    end
     -- Hide toggle term
     debug_ui.toggleterm_opened = false
     for _, term in ipairs(require('toggleterm.terminal').get_all(false)) do
-      local tu = require'toggleterm.ui'
+      local tu = require 'toggleterm.ui'
       if tu.term_has_open_win(term) then
         tu.close(term)
         debug_ui.toggleterm_opened = true
@@ -57,11 +59,6 @@ PLUGINS.dap = {
   setup = function()
     local dap = require('dap')
     dap.adapters = {
-      lldb = {
-        type = 'executable',
-        command = '/sbin/lldb-vscode',
-        name = 'lldb'
-      },
       cppdbg = {
         type = 'executable',
         command = '/home/kuba/.local/share/cppdbg/extension/debugAdapters/bin/OpenDebugAD7',
@@ -78,11 +75,12 @@ PLUGINS.dap = {
         end,
         cwd = "${workspaceFolder}",
         stopOnEntry = true,
-        args = { },
+        args = {},
       }
     }
     dap.configurations.c = dap.configurations.cpp
-      -- Set arguments for C/C++ DAP debugger
+
+    -- Set arguments for C/C++ DAP debugger
     vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
       local args = {}
       for arg in ctx.args:gmatch('%S+') do
@@ -125,12 +123,12 @@ PLUGINS.dap = {
     vim.keymap.set('n', '<F10>', dap.step_over, { desc = 'Debugging step over' })
     vim.keymap.set('n', '<F11>', dap.step_into, { desc = 'Debugging step into' })
     vim.keymap.set('n', '<F12>', dap.step_out, { desc = 'Debugging step out' })
-    dap.listeners.after.event_initialized["dapui_config"] = function (opts)
+    dap.listeners.after.event_initialized["dapui_config"] = function(opts)
       if not debug_ui.opened then toggle_debug_ui(opts) end
     end
     local function close_debug_ui(opts) if debug_ui.opened then toggle_debug_ui(opts) end end
     dap.listeners.after.event_terminated["dapui_config"] = close_debug_ui
     dap.listeners.before.event_exited["dapui_config"] = close_debug_ui
   end,
+  prio = 110,
 }
-

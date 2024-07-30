@@ -14,4 +14,6 @@ PLUGIN_TEMPLATE = {
   before = 'plugin name',
   -- Function that setups the keymapping.
   keymaps = function() end,
+  -- When the plugin should be initialized. Bigger means later
+  prio = 10000
 }

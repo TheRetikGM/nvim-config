@@ -7,6 +7,39 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   vim.cmd [[packadd packer.nvim]]
 end
 
+-- Load all plugins from the plugins directory.
+require('plugin_common')
+for _, file in ipairs(vim.fn.readdir(vim.fn.stdpath('config')..'/lua/plugins', [[v:val =~ '\.lua$']])) do
+  require('plugins.'..file:gsub('%.lua$', ''))
+end
+
+-- Create key array of plugins sorted by priority
+local plugin_keys = {}
+for k in pairs(PLUGINS) do
+  table.insert(plugin_keys, k)
+end
+table.sort(plugin_keys, function(a, b)
+  if PLUGINS[a].prio == nil then PLUGINS[a].prio = 10000000 end
+  if PLUGINS[b].prio == nil then PLUGINS[b].prio = 10000000 end
+
+  return PLUGINS[a].prio < PLUGINS[b].prio
+end)
+
+-- Iterate over all plugins in sorted order by priority
+function FOR_EACH_PLUGIN(func)
+  for _, key in ipairs(plugin_keys) do
+    local plugin = PLUGINS[key];
+
+    if plugin.ignore ~= nil and plugin.ignore == true then
+      goto continue
+    end
+
+    func(plugin)
+
+    ::continue::
+  end
+end
+
 -- Setup packer plugins
 require('packer').startup(function(use)
   -- Package manager
@@ -26,7 +59,7 @@ require('packer').startup(function(use)
       },
 
       -- Additional lua configuration, makes nvim stuff amazing
-      'folke/neodev.nvim',
+      'folke/lazydev.nvim',
     },
   }
 
@@ -46,12 +79,6 @@ require('packer').startup(function(use)
 
   -- Sinagure help for functions.
   -- use { 'ray-x/lsp_signature.nvim' }
-
-  -- DEL: Pretty folding
-  use {'kevinhwang91/nvim-ufo', requires = 'kevinhwang91/promise-async'}
-
-  -- DEL: Doxygen highlights and generation.
-  use { 'danymat/neogen' }
 
   use { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -76,87 +103,29 @@ require('packer').startup(function(use)
   use 'folke/tokyonight.nvim'
   use 'rebelot/kanagawa.nvim'
 
-  use 'nvim-lualine/lualine.nvim' -- DEL: Fancier statusline
-  use 'lukas-reineke/indent-blankline.nvim' -- DEL: Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- DEL: "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- DEL: Detect tabstop and shiftwidth automatically
-
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
-  -- DEL: Neo tree for file explorer
-  -- Unless you are still migrating, remove the deprecated commands from v1.x
-  vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
-  use {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v2.x",
-    requires = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
-    }
-  }
-
-  -- Display GUI like buffer tabs
-  use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
-  -- DEL: Close buffers without messing up the layout
-  use 'famiu/bufdelete.nvim'
-  -- DEL: Duplicate cursors and more
-  use { 'mg979/vim-visual-multi', branch = 'master' }
-  -- DEL: Move lines and blocks around
-  use { 'fedepujol/move.nvim' }
-  -- DEL: Terminal
-  use { 'akinsho/toggleterm.nvim', tag = '*' }
   -- Inject lsp diagnostics, code actions and more. Also format code.
   use { 'nvimtools/none-ls.nvim' }
-  -- DEL: Automatically complete pair characters
-  use 'windwp/nvim-autopairs'
-  -- DEL: Manage sessions
-  use {
-    'rmagatti/session-lens',
-    requires = {'nvim-telescope/telescope.nvim'},
-  }
-  -- DEL: Requred by session-lens
-  use {
-    'rmagatti/auto-session',
-    -- There was a bug when some file was renamed and it didn't work
-    commit = '8b43922b893790a7f79951d4616369128758d215'
-  }
-  -- DEL: Debugging
-  use {
-    'mfussenegger/nvim-dap',
-    requires = { 'rcarriga/nvim-dap-ui' },
-  }
-  -- DEL: Rust tools - Automatically configure rust_analyzer
-  use { 'simrat39/rust-tools.nvim' }
-  -- DEL: Profiling annotations
-  use { 't-troebst/perfanno.nvim' }
-  -- DEL: Auto indentation for lisp-like languages (I use it for EWW configuration files)
-  use { 'gpanders/nvim-parinfer' }
-  -- DEL: Pretty message boxes. For example when you want to rename a variable.
-  use { 'stevearc/dressing.nvim' }
-  -- DEL: Flutter compatibility
-  use {
-    'akinsho/flutter-tools.nvim',
-    lazy = false,
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'stevearc/dressing.nvim'
-    }
-  }
+
   -- VSCode theme
   use 'Mofiqul/vscode.nvim'
-
-  -- DEL: Show nvim activity in discord
-  use 'andweeb/presence.nvim';
 
   -- Connect mason and null-ls to make linteres and formatters work.
   use 'jay-babu/mason-null-ls.nvim'
 
+  -- A library for asynchronous IO in Neovim, inspired by the asyncio library in Python. The library focuses
+  -- on providing both common asynchronous primitives and asynchronous APIs for Neovim's core.
   use 'nvim-neotest/nvim-nio'
+
+  -- Load all other plugins
+  FOR_EACH_PLUGIN(function(plugin)
+    use(plugin.packer)
+  end)
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')

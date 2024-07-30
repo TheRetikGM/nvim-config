@@ -7,5 +7,6 @@ PLUGINS.indent_blankline = {
         show_start = false,
       }
     }
-  end
+  end,
+  prio = -30,
 }

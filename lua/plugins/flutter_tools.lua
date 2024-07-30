@@ -86,5 +86,6 @@ PLUGINS.flutter_tools = {
         on_attach = flutter_on_lsp_attach,
       }
     })
-  end
+  end,
+  prio = 160,
 }

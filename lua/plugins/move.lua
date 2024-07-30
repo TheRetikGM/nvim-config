@@ -11,5 +11,6 @@ PLUGINS.move = {
     vim.keymap.set('v', '<A-k>', ':MoveBlock(-1)<cr>', { desc = 'Move block down' })
     vim.keymap.set('v', '<A-h>', ':MoveHBlock(1)<cr>', { desc = 'Move block right' })
     vim.keymap.set('v', '<A-h>', ':MoveHBlock(1)<cr>', { desc = 'Move block right' })
-  end
+  end,
+  prio = 60,
 }
