@@ -7,6 +7,39 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   vim.cmd [[packadd packer.nvim]]
 end
 
+-- Load all plugins from the plugins directory.
+require('plugin_common')
+for _, file in ipairs(vim.fn.readdir(vim.fn.stdpath('config')..'/lua/plugins', [[v:val =~ '\.lua$']])) do
+  require('plugins.'..file:gsub('%.lua$', ''))
+end
+
+-- Create key array of plugins sorted by priority
+local plugin_keys = {}
+for k in pairs(PLUGINS) do
+  table.insert(plugin_keys, k)
+end
+table.sort(plugin_keys, function(a, b)
+  if PLUGINS[a].prio == nil then PLUGINS[a].prio = 10000000 end
+  if PLUGINS[b].prio == nil then PLUGINS[b].prio = 10000000 end
+
+  return PLUGINS[a].prio < PLUGINS[b].prio
+end)
+
+-- Iterate over all plugins in sorted order by priority
+function FOR_EACH_PLUGIN(func)
+  for _, key in ipairs(plugin_keys) do
+    local plugin = PLUGINS[key];
+
+    if plugin.ignore ~= nil and plugin.ignore == true then
+      goto continue
+    end
+
+    func(plugin)
+
+    ::continue::
+  end
+end
+
 -- Setup packer plugins
 require('packer').startup(function(use)
   -- Package manager
@@ -20,10 +53,13 @@ require('packer').startup(function(use)
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
-      'j-hui/fidget.nvim',
+      {
+        'j-hui/fidget.nvim',
+        tag = 'legacy',
+      },
 
       -- Additional lua configuration, makes nvim stuff amazing
-      'folke/neodev.nvim',
+      'folke/lazydev.nvim',
     },
   }
 
@@ -31,7 +67,7 @@ require('packer').startup(function(use)
     'hrsh7th/nvim-cmp',
     requires = {
       'hrsh7th/cmp-nvim-lsp',   -- CMP integration with lsp
-      'L3MON4D3/LuaSnip',       -- Code snippets
+      -- 'L3MON4D3/LuaSnip',       -- Code snippets
       'saadparwaiz1/cmp_luasnip',
       'hrsh7th/cmp-nvim-lsp-signature-help',    -- Function signature while typing
       'hrsh7th/cmp-vsnip',
@@ -40,6 +76,9 @@ require('packer').startup(function(use)
       'hrsh7th/vim-vsnip',
     },
   }
+
+  -- Sinagure help for functions.
+  -- use { 'ray-x/lsp_signature.nvim' }
 
   use { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -64,67 +103,29 @@ require('packer').startup(function(use)
   use 'folke/tokyonight.nvim'
   use 'rebelot/kanagawa.nvim'
 
-  use 'nvim-lualine/lualine.nvim' -- Fancier statusline
-  use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
-
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
-  -- Neo tree for file explorer
-  -- Unless you are still migrating, remove the deprecated commands from v1.x
-  vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
-  use {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v2.x",
-    requires = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
-    }
-  }
-
-  -- Display GUI like buffer tabs
-  use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
-  -- Close buffers without messing up the layout
-  use 'famiu/bufdelete.nvim'
-  -- Duplicate cursors and more
-  use { 'mg979/vim-visual-multi', branch = 'master' }
-  -- Move lines and blocks around
-  use 'ur4ltz/move.nvim'
-  -- Terminal
-  use { 'akinsho/toggleterm.nvim', tag = '*' }
   -- Inject lsp diagnostics, code actions and more. Also format code.
-  use { 'jose-elias-alvarez/null-ls.nvim' }
-  -- Automatically complete pair characters
-  use 'windwp/nvim-autopairs'
-  -- Manage sessions
-  use {
-    'rmagatti/session-lens',
-    requires = {'nvim-telescope/telescope.nvim'},
-  }
-  use { -- requred by session-lens
-    'rmagatti/auto-session',
-    -- There was a bug when some file was renamed and it didn't work
-    commit = '8b43922b893790a7f79951d4616369128758d215'
-  }
-  -- Display images
-  use { 'edluffy/hologram.nvim' }
-  -- Debugging
-  use {
-    'mfussenegger/nvim-dap',
-    requires = { 'rcarriga/nvim-dap-ui' },
-  }
-  -- Rust tools - Automatically configure rust_analyzer
-  use { 'simrat39/rust-tools.nvim' }
-  -- Profiling annotations
-  use { 't-troebst/perfanno.nvim' }
-  -- Auto indentation for lisp-like languages (I use it for EWW configuration files)
-  use { 'gpanders/nvim-parinfer' }
+  use { 'nvimtools/none-ls.nvim' }
+
+  -- VSCode theme
+  use 'Mofiqul/vscode.nvim'
+
+  -- Connect mason and null-ls to make linteres and formatters work.
+  use 'jay-babu/mason-null-ls.nvim'
+
+  -- A library for asynchronous IO in Neovim, inspired by the asyncio library in Python. The library focuses
+  -- on providing both common asynchronous primitives and asynchronous APIs for Neovim's core.
+  use 'nvim-neotest/nvim-nio'
+
+  -- Load all other plugins
+  FOR_EACH_PLUGIN(function(plugin)
+    use(plugin.packer)
+  end)
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
