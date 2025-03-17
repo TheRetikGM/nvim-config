@@ -26,12 +26,12 @@ vim.wo.signcolumn = 'yes'
 vim.o.termguicolors = true
 local c = require('vscode.colors')
 require('vscode').setup({
-    style = 'dark',
-    transparent = false,
-    italic_comments = true,
-    underline_links = true,
-    disable_nvimtree_bg = false,
-        -- Override colors (see ./lua/vscode/colors.lua)
+  style = 'dark',
+  transparent = false,
+  italic_comments = true,
+  underline_links = true,
+  disable_nvimtree_bg = false,
+  -- Override colors (see ./lua/vscode/colors.lua)
 })
 require('vscode').load()
 -- vim.cmd [[colorscheme vscode]]
@@ -67,30 +67,30 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 vim.diagnostic.config({
-    virtual_text = true,
-    update_in_insert = true,
-    underline = true,
-    severity_sort = true,
-    signs = {
-        text = {
-          [vim.diagnostic.severity.ERROR] = "",
-          [vim.diagnostic.severity.WARN] = "",
-          [vim.diagnostic.severity.INFO] = "",
-          [vim.diagnostic.severity.HINT] = "",
-        },
-        numhl = {
-          [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
-          [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
-          [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
-          [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
-        },
-        linehl = {
-          [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
-          [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
-          [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
-          [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
-        },
-    }
+  virtual_text = true,
+  update_in_insert = true,
+  underline = true,
+  severity_sort = true,
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "",
+      [vim.diagnostic.severity.WARN] = "",
+      [vim.diagnostic.severity.INFO] = "",
+      [vim.diagnostic.severity.HINT] = "",
+    },
+    numhl = {
+      [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
+      [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
+      [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
+      [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
+    },
+    linehl = {
+      [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
+      [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
+      [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
+      [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
+    },
+  }
 })
 
 -- Keymaps for better default experience
@@ -144,6 +144,15 @@ local lsp_on_attach = function(client, bufnr)
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
   end, { desc = 'Format current buffer with LSP' })
+
+  vim.api.nvim_buf_create_user_command(bufnr, 'TypstSetMainFile', function()
+    local main_file = vim.fn.input('Path to main file: ', vim.fn.getcwd() .. '/', 'file')
+
+    vim.lsp.buf_request_sync(bufnr, "workspace/executeCommand", {
+      command = "typst-lsp.doPinMain",
+      arguments = { vim.uri_from_fname(main_file) },
+    }, 1000)
+  end, { desc = "Set main file for typst lsp" })
 end
 
 -- DEL: Set arguments for C/C++ DAP debugger
@@ -163,19 +172,6 @@ end
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
-  clangd = {
-    flags = {allow_incremental_sync = true, debounce_text_changes = 500},
-    cmd = {
-      "clangd",
-      "--background-index",
-      "--suggest-missing-includes",
-      "--clang-tidy",
-      "--header-insertion=iwyu",
-      "-j 8",
-      "--malloc-trim",
-      "--pch-storage=memory",
-    },
-  },
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -190,9 +186,10 @@ local servers = {
   --     maxSize = 1000000,
   --   }
   -- },
-  typst_lsp = {
-    exportPdf = "never";
+  tinymist = {
+    exportPdf = "never",
   },
+  clangd = {},
 }
 
 -- Setup neovim lua configuration
@@ -257,6 +254,32 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
+-- Setup clangd
+local project_clangd = vim.fn.getcwd() .. "/.clangd_bin"
+if vim.fn.filereadable(project_clangd) == 1 then
+  project_clangd = vim.fn.readfile(project_clangd)[1]
+else
+  project_clangd = "clangd"
+end
+require('lspconfig').clangd.setup({
+  capabilities = capabilities,
+  on_attach = lsp_on_attach,
+  flags = { allow_incremental_sync = true, debounce_text_changes = 500 },
+  cmd = {
+    project_clangd,
+    "--background-index",
+    "--suggest-missing-includes",
+    "--clang-tidy",
+    "--header-insertion=iwyu",
+    "-j", "8",
+    "--malloc-trim",
+    "--pch-storage=memory",
+    "--query-driver", "/home/kuba/.espressif/tools/riscv32-esp-elf/esp-13.2.0_20230928/riscv32-esp-elf/bin/riscv32-esp-elf-gcc",
+    "--compile-commands-dir", "build/"
+  },
+  env = vim.fn.environ(),
+})
+
 -- Turn on lsp status information
 require('fidget').setup()
 
@@ -285,8 +308,8 @@ cmp.setup({
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      -- elseif luasnip.expand_or_jumpable() then
-      --   luasnip.expand_or_jump()
+        -- elseif luasnip.expand_or_jumpable() then
+        --   luasnip.expand_or_jump()
       else
         fallback()
       end
@@ -335,4 +358,3 @@ cmp.setup({
 
 -- Set my custom eybindins for plugins
 require('keybindings')
-

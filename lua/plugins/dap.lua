@@ -61,7 +61,7 @@ PLUGINS.dap = {
     dap.adapters = {
       cppdbg = {
         type = 'executable',
-        command = '/home/kuba/.local/share/cppdbg/extension/debugAdapters/bin/OpenDebugAD7',
+        command = '/home/kuba/.local/share/extension/debugAdapters/bin/OpenDebugAD7',
         name = 'cppdbg'
       }
     }
@@ -75,7 +75,6 @@ PLUGINS.dap = {
         end,
         cwd = "${workspaceFolder}",
         stopOnEntry = true,
-        args = {},
       }
     }
     dap.configurations.c = dap.configurations.cpp

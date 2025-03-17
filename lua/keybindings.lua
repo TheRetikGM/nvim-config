@@ -13,7 +13,7 @@ FOR_EACH_PLUGIN(function(plugin)
 end)
 
 -- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
+-- vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').commands, { desc = '[ ] Find commands' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
@@ -38,7 +38,6 @@ vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = 'Show diag
 -- Buffer shortcuts
 vim.keymap.set('n', '<leader>st', ':set filetype=', { desc = '[S]et buffer File[T]ype'})
 vim.keymap.set('n', '<leader>sb', ':set background=', { desc = '[S]et [B]ackground' })
-vim.keymap.set('n', '<leader>sc', ':colorscheme ', { desc = '[S]et [C]olorscheme' })
 
 -- Move between splits
 vim.keymap.set('n', '<C-h>', ':wincmd h<cr>', { desc = 'Move to left split' })
