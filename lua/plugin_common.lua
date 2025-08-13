@@ -2,6 +2,8 @@
 PLUGINS = {}
 
 PLUGIN_TEMPLATE = {
+  -- Ignore the plugin
+  ignore = false,
   -- Table to pass to Packer's `use` function.
   packer = {},
   -- Function to execute during init phase (that is before any setup function is called).
@@ -15,5 +17,5 @@ PLUGIN_TEMPLATE = {
   -- Function that setups the keymapping.
   keymaps = function() end,
   -- When the plugin should be initialized. Bigger means later
-  prio = 10000
+  prio = 10000,
 }

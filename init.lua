@@ -24,14 +24,16 @@ vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 -- Set colorscheme
 vim.o.termguicolors = true
-local c = require('vscode.colors')
 require('vscode').setup({
   style = 'dark',
   transparent = false,
   italic_comments = true,
   underline_links = true,
   disable_nvimtree_bg = false,
-  -- Override colors (see ./lua/vscode/colors.lua)
+  group_overrides = {
+    -- Make the borders of hover and diagnostics have the correct color
+    FloatBorder = { link = "LspFloatWinBorder" }
+  },
 })
 require('vscode').load()
 -- vim.cmd [[colorscheme vscode]]
@@ -71,6 +73,15 @@ vim.diagnostic.config({
   update_in_insert = true,
   underline = true,
   severity_sort = true,
+  float = {
+    -- Another fucking place where I have to set rounded border. Fuck my life mann
+    -- For now these are the places where I had to set it:
+    -- + vim.diagnostics.config() (here)
+    -- + cmp.setup
+    -- + vim.g.rustaceanvim.tools.float_win_config
+    -- + noice plugin config
+    border = 'rounded',
+  },
   signs = {
     text = {
       [vim.diagnostic.severity.ERROR] = "",
@@ -114,7 +125,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
-local lsp_on_attach = function(client, bufnr)
+LSP_ON_ATTACH = function(client, bufnr)
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -131,6 +142,7 @@ local lsp_on_attach = function(client, bufnr)
   nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
   nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>ss', require('telescope.builtin').lsp_workspace_symbols, '[S]earch [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
@@ -155,22 +167,7 @@ local lsp_on_attach = function(client, bufnr)
   end, { desc = "Set main file for typst lsp" })
 end
 
--- DEL: Set arguments for C/C++ DAP debugger
--- vim.api.nvim_create_user_command('SetDebugArgs', function(ctx)
---   local dap = require('dap')
---   local args = {}
---   for arg in ctx.args:gmatch('%S+') do
---     table.insert(args, arg)
---   end
---   dap.configurations.cpp[0].args = args
---   dap.configurations.c[0].args = args
--- end, { desc = 'Set arguments to use when debugging' })
-
 -- Enable the following language servers
---  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
---
---  Add any additional override configuration in the following tables. They will be passed to
---  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
   lua_ls = {
     Lua = {
@@ -178,7 +175,9 @@ local servers = {
       telemetry = { enable = false },
     },
   },
+  pylsp = 'ignore',
   rust_analyzer = 'ignore',
+  clangd = 'ignore',
   cmake = {},
   omnisharp = {},
   -- intelephense = {
@@ -189,12 +188,11 @@ local servers = {
   tinymist = {
     exportPdf = "never",
   },
-  clangd = {},
 }
 
 -- Setup neovim lua configuration
 require('lazydev').setup()
---
+
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -208,50 +206,36 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
 
 -- Setup mason so it can manage external tooling
 require('mason').setup()
-require('mason-null-ls').setup({
-  handlers = {},
-});
+require('mason-null-ls').setup();
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
+  automatic_enable = false,
 }
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    -- if server_name == "intelephense" then
-    --   require('lspconfig').intelephense.setup {
-    --     capabilities = capabilities,
-    --     on_attach = lsp_on_attach,
-    --     settings = servers["intelephense"],
-    --     root_dir = function(_)
-    --       return vim.fn.getcwd()
-    --     end
-    --   }
-    --   return
-    -- end
-    if server_name == "pylsp" then
-      require('lspconfig').pylsp.setup {
-        capabilities = capabilities,
-        on_attach = lsp_on_attach,
-        settings = servers["pylsp"],
-        root_dir = require 'lspconfig'.util.root_pattern('.')
-      }
-      return
-    end
+for _, server_name in pairs(mason_lspconfig.get_installed_servers()) do
+  if servers[server_name] == 'ignore' then
+    goto continue
+  end
 
-    if servers[server_name] == 'ignore' then
-      return
-    end
+  require('lspconfig')[server_name].setup {
+    capabilities = capabilities,
+    on_attach = LSP_ON_ATTACH,
+    settings = servers[server_name],
+  }
 
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = lsp_on_attach,
-      settings = servers[server_name],
-    }
-  end,
+  ::continue::
+end
+
+-- Setup PyLSP
+require('lspconfig').pylsp.setup {
+  capabilities = capabilities,
+  on_attach = LSP_ON_ATTACH,
+  settings = servers["pylsp"],
+  root_dir = require 'lspconfig'.util.root_pattern('.')
 }
 
 -- Setup clangd
@@ -261,9 +245,14 @@ if vim.fn.filereadable(project_clangd) == 1 then
 else
   project_clangd = "clangd"
 end
+
 require('lspconfig').clangd.setup({
   capabilities = capabilities,
-  on_attach = lsp_on_attach,
+  on_attach = function(client, bufnr)
+    LSP_ON_ATTACH(client, bufnr)
+
+    vim.keymap.set('n', '<C-s>', function() vim.cmd('ClangdSwitchSourceHeader') end, { buffer = bufnr, desc = 'Switch [S]ource header', remap = true })
+  end,
   flags = { allow_incremental_sync = true, debounce_text_changes = 500 },
   cmd = {
     project_clangd,
@@ -274,7 +263,7 @@ require('lspconfig').clangd.setup({
     "-j", "8",
     "--malloc-trim",
     "--pch-storage=memory",
-    "--query-driver", "/home/kuba/.espressif/tools/riscv32-esp-elf/esp-13.2.0_20230928/riscv32-esp-elf/bin/riscv32-esp-elf-gcc",
+    -- "--query-driver", "/home/kuba/.espressif/tools/riscv32-esp-elf/esp-13.2.0_20230928/riscv32-esp-elf/bin/riscv32-esp-elf-gcc",
     "--compile-commands-dir", "build/"
   },
   env = vim.fn.environ(),
@@ -291,6 +280,17 @@ local cmp = require 'cmp'
 require('plugin_setups')
 
 cmp.setup({
+  formatting = {
+    format = function(_, vim_item)
+      local max_width = 60
+      local label = vim_item.abbr
+      if #label > max_width then
+        vim_item.abbr = string.sub(label, 1, max_width - 1) .. "…"
+      end
+
+      return vim_item
+    end,
+  },
   snippet = {
     expand = function(args)
       -- luasnip.lsp_expand(args.body)
@@ -298,7 +298,12 @@ cmp.setup({
     end,
   },
   window = {
-
+    completion = cmp.config.window.bordered {
+      winhighlight = "Normal:Pmenu,FloatBorder:LspFloatWinBorder,CursorLine:PmenuSel,Search:None",
+    },
+    documentation = cmp.config.window.bordered {
+      winhighlight = "Normal:Pmenu,FloatBorder:LspFloatWinBorder,CursorLine:PmenuSel,Search:None",
+    },
   },
   mapping = cmp.mapping.preset.insert {
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
@@ -332,29 +337,74 @@ cmp.setup({
     -- Function parameters while typing
     { name = 'nvim_lsp_signature_help' },
     { name = 'vsnip' },
+    -- Rust crates
+    { name = 'crates' },
   }, {
     -- Source current buffer.
     { name = 'buffer' },
   }),
 })
 
--- `/` cmdline setup.
--- cmp.setup.cmdline('/', {
---   mapping = cmp.mapping.preset.cmdline(),
---   sources = {
---     { name = 'buffer' }
---   }
--- })
-
--- `:` cmdline setup.
--- cmp.setup.cmdline(':', {
---   mapping = cmp.mapping.preset.cmdline(),
---   sources = cmp.config.sources({
---     { name = 'path' }
---   }, {
---     { name = 'cmdline' }
---   })
--- })
-
 -- Set my custom eybindins for plugins
 require('keybindings')
+
+-- Make checkhealth have a rounded border
+vim.g.health = { style = 'float' }
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = 'checkhealth',
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    local buf = vim.api.nvim_get_current_buf()
+
+    local width = math.floor(vim.o.columns * 0.8)  -- 80% of screen width
+    local height = math.floor(vim.o.lines * 0.7)   -- 70% of screen height
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+
+    pcall(vim.api.nvim_win_set_config, win, {
+      border = "rounded",
+      relative = "editor",
+      row = row,
+      col = col,
+      width = width,
+      height = height,
+      style = "minimal",
+    })
+
+    -- Optional: avoid listing in buffer list
+    vim.bo[buf].buflisted = false
+  end,
+})
+
+-- Inline hints (neovim builtin functionality)
+vim.api.nvim_create_user_command('InlineHintsToggle', function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+end, { nargs = 0 })
+
+-- Fuck this broo. I am done
+local function ffs_exit(cmd)
+  return function()
+    vim.cmd(cmd)
+  end
+end
+vim.api.nvim_create_user_command('Wq', ffs_exit('wq'), {})
+vim.api.nvim_create_user_command('WQ', ffs_exit('wq'), {})
+vim.api.nvim_create_user_command('Q', ffs_exit('q'), {})
+vim.api.nvim_create_user_command('W', ffs_exit('w'), {})
+vim.cmd([[
+  cnoreabbrev wQ Wq
+  cnoreabbrev Wq Wq
+  cnoreabbrev WQ Wq
+  cnoreabbrev Q q
+  cnoreabbrev W w
+]])
+
+-- Command for switching between light and dark theme
+vim.api.nvim_create_user_command('ToggleLightDarkTheme', function()
+  if vim.o.background == 'dark' then
+    require('vscode').load('light')
+  elseif vim.o.background == 'light' then
+    require('vscode').load('dark')
+  end
+end, { nargs = 0 })
+

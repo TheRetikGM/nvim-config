@@ -5,8 +5,7 @@ PLUGINS.session_lens = {
     requires = {'nvim-telescope/telescope.nvim'},
   },
   keymaps = function()
-    vim.keymap.set('n', '<leader>ss', ':SearchSession<cr>', { desc = '[S]earch [S]ession' })
-    vim.keymap.set('n', '<leader>rs', ':SessionRestore<cr>', { desc = '[R]estore [S]ession' })
+    vim.keymap.set('n', '<leader>rs', function() vim.cmd('SessionRestore') end, { desc = '[R]estore [S]ession' })
   end,
   after = 'auto_session',
   prio = 90,

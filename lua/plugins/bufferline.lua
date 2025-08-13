@@ -39,32 +39,32 @@ PLUGINS.bufferline = {
         show_tab_indicators = true,
       },
       highlights = {
-       separator = {
-          fg = { attribute = 'bg', highlight = 'StatusLineNC' },
-        },
-        separator_visible = {
-          fg = { attribute = 'bg', highlight = 'StatusLineNC' },
-        },
-        separator_selected = {
-          fg = { attribute = 'bg', highlight = 'StatusLineNC' },
-        },
+        separator = {
+           fg = { attribute = 'bg', highlight = 'StatusLineNC' },
+         },
+         separator_visible = {
+           fg = { attribute = 'bg', highlight = 'StatusLineNC' },
+         },
+         separator_selected = {
+           fg = { attribute = 'bg', highlight = 'StatusLineNC' },
+         },
       },
     })
   end,
   keymaps = function()
-    vim.keymap.set('n', 'H', ':BufferLineCyclePrev<cr>', { desc = 'Move to previous buffer' })
-    vim.keymap.set('n', 'L', ':BufferLineCycleNext<cr>', { desc = 'Move to next buffer' })
-    vim.keymap.set('n', '<A-1>', ':BufferLineGoToBuffer 1<cr>', { desc = 'Go to BufferLine tab 1' })
-    vim.keymap.set('n', '<A-2>', ':BufferLineGoToBuffer 2<cr>', { desc = 'Go to BufferLine tab 2' })
-    vim.keymap.set('n', '<A-3>', ':BufferLineGoToBuffer 3<cr>', { desc = 'Go to BufferLine tab 3' })
-    vim.keymap.set('n', '<A-4>', ':BufferLineGoToBuffer 4<cr>', { desc = 'Go to BufferLine tab 4' })
-    vim.keymap.set('n', '<A-5>', ':BufferLineGoToBuffer 5<cr>', { desc = 'Go to BufferLine tab 5' })
-    vim.keymap.set('n', '<A-6>', ':BufferLineGoToBuffer 6<cr>', { desc = 'Go to BufferLine tab 6' })
-    vim.keymap.set('n', '<A-7>', ':BufferLineGoToBuffer 7<cr>', { desc = 'Go to BufferLine tab 7' })
-    vim.keymap.set('n', '<A-8>', ':BufferLineGoToBuffer 8<cr>', { desc = 'Go to BufferLine tab 8' })
-    vim.keymap.set('n', '<A-9>', ':BufferLineGoToBuffer 9<cr>', { desc = 'Go to BufferLine tab 9' })
-    vim.keymap.set('n', '<A-S-h>', ':BufferLineMovePrev<cr>', { desc = 'Move buffer to the left' })
-    vim.keymap.set('n', '<A-S-l>', ':BufferLineMoveNext<cr>', { desc = 'Move buffer to the right' })
+    vim.keymap.set('n', 'H', function() vim.cmd('BufferLineCyclePrev') end, { desc = 'Move to previous buffer' })
+    vim.keymap.set('n', 'L', function() vim.cmd('BufferLineCycleNext') end, { desc = 'Move to next buffer' })
+    vim.keymap.set('n', '<A-1>', function() vim.cmd('BufferLineGoToBuffer 1') end, { desc = 'Go to BufferLine tab 1' })
+    vim.keymap.set('n', '<A-2>', function() vim.cmd('BufferLineGoToBuffer 2') end, { desc = 'Go to BufferLine tab 2' })
+    vim.keymap.set('n', '<A-3>', function() vim.cmd('BufferLineGoToBuffer 3') end, { desc = 'Go to BufferLine tab 3' })
+    vim.keymap.set('n', '<A-4>', function() vim.cmd('BufferLineGoToBuffer 4') end, { desc = 'Go to BufferLine tab 4' })
+    vim.keymap.set('n', '<A-5>', function() vim.cmd('BufferLineGoToBuffer 5') end, { desc = 'Go to BufferLine tab 5' })
+    vim.keymap.set('n', '<A-6>', function() vim.cmd('BufferLineGoToBuffer 6') end, { desc = 'Go to BufferLine tab 6' })
+    vim.keymap.set('n', '<A-7>', function() vim.cmd('BufferLineGoToBuffer 7') end, { desc = 'Go to BufferLine tab 7' })
+    vim.keymap.set('n', '<A-8>', function() vim.cmd('BufferLineGoToBuffer 8') end, { desc = 'Go to BufferLine tab 8' })
+    vim.keymap.set('n', '<A-9>', function() vim.cmd('BufferLineGoToBuffer 9') end, { desc = 'Go to BufferLine tab 9' })
+    vim.keymap.set('n', '<A-S-h>', function() vim.cmd('BufferLineMovePrev') end, { desc = 'Move buffer to the left' })
+    vim.keymap.set('n', '<A-S-l>', function() vim.cmd('BufferLineMoveNext') end, { desc = 'Move buffer to the right' })
   end,
   prio = 30,
 }

@@ -59,6 +59,7 @@ local rust_config = {
       useParameterNames = true,
     },
   },
+  numThreads = 8,
   cachePriming = {
     enable = true,
     numThreads = 2,
@@ -68,7 +69,7 @@ local rust_config = {
 PLUGINS.rust_integration = {
   packer = {
     'mrcjkb/rustaceanvim',
-    version = '^5',
+    version = '^6',
   },
   setup = function()
     if string.find(vim.fn.getcwd(), "/projects/esp") then
@@ -80,14 +81,22 @@ PLUGINS.rust_integration = {
     vim.g.rustaceanvim = {
       -- Plugin configuration
       tools = {
+        code_actions = {
+          ui_select_fallback = true,
+        },
+        float_win_config = {
+          border = 'rounded',
+          winhighlight = "Normal:LspFloatWinBorder,FloatBorder:LspFloatWinBorder",
+        }
       },
       -- LSP configuration
       server = {
         on_attach = function(client, bufnr)
+          vim.api.nvim_set_hl(0, "FloatBorder", { link = "LspFloatWinBorder" })
+
           -- Keybinds
-          vim.keymap.set('n', '<leader>ca', function() vim.cmd.RustLsp('codeAction') end,
-            { desc = "Rust [C]ode [A]ction", buffer = bufnr })
-          -- Run target defined by current cursor position
+          vim.keymap.set('n', '<leader>ca', function() vim.cmd.RustLsp('codeAction') end, { desc = "Rust [C]ode [A]ction", buffer = bufnr })
+          vim.keymap.set('n', 'K', function() vim.cmd.RustLsp{ 'hover', 'actions' } end, { desc = "Rust hover action", buffer = bufnr })
           vim.keymap.set('n', '<C-F5>', function() vim.cmd.RustLsp('runnables') end, { desc = "Rust run current target" })
 
           -- Format on write

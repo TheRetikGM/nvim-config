@@ -2,6 +2,7 @@
 PLUGINS.lualine = {
   packer = 'nvim-lualine/lualine.nvim',
   setup = function()
+    vim.o.laststatus = 3
     -- See `:help lualine.txt`
     require('lualine').setup {
       options = {

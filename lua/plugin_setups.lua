@@ -23,6 +23,9 @@ require('neo-tree').setup {
     icon = {
       folder_empty = "󰜌",
       folder_empty_open = "󰜌",
+      folder_open = "",
+      folder_closed = "",
+      default = ""
     },
     git_status = {
       symbols = {
@@ -72,7 +75,7 @@ require('telescope').setup {
       },
     },
   },
-  file_ignore_patterns = { "node_modules", "build", "builddir", "dist", }
+  file_ignore_patterns = { "node_modules", "build", "builddir", "dist", "target", "bin", "obj" }
 }
 
 -- Enable telescope fzf native, if installed

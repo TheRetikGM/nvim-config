@@ -10,7 +10,7 @@ vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 PLUGINS.neotree = {
   packer = {
     "nvim-neo-tree/neo-tree.nvim",
-    branch = "v2.x",
+    branch = "v3.x",
     requires = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
