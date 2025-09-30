@@ -109,9 +109,6 @@ require('packer').startup(function(use)
   -- Inject lsp diagnostics, code actions and more. Also format code.
   use { 'nvimtools/none-ls.nvim' }
 
-  -- VSCode theme
-  use 'Mofiqul/vscode.nvim'
-
   -- Connect mason and null-ls to make linteres and formatters work.
   use 'jay-babu/mason-null-ls.nvim'
 

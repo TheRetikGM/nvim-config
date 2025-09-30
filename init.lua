@@ -1,410 +1,82 @@
--- Install plugins
-require('plugins')
+--------------------------------------
+--- Global options
+--------------------------------------
 
--- [[ Setting options ]]
--- See `:help vim.o`
-
--- Number of lines to start scrolling from
-vim.o.scrolloff = 10
--- Set highlight on search
-vim.o.hlsearch = false
--- Make line numbers default
-vim.wo.number = true
--- Enable mouse mode
-vim.o.mouse = 'a'
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+vim.g.have_nerd_font = false    -- Set to true if you have a Nerd Font installed and selected in the terminal
+vim.o.number = true
+vim.o.relativenumber = true
+vim.o.mouse = 'a'   -- Enable mouse mode, can be useful for resizing splits for example!
+vim.o.showmode = false    -- Don't show the mode, since it's already in the status line
+-- Sync clipboard between OS and Neovim.
+--  Schedule the setting after `UiEnter` because it can increase startup-time.
+--  See `:help 'clipboard'`
+vim.schedule(function()
+  vim.o.clipboard = 'unnamedplus'
+end)
 -- Enable break indent
 vim.o.breakindent = true
 -- Save undo history
 vim.o.undofile = true
--- Case insensitive searching UNLESS /C or capital in search
+-- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.o.ignorecase = true
 vim.o.smartcase = true
+-- Keep signcolumn on by default
+vim.o.signcolumn = 'yes'
 -- Decrease update time
 vim.o.updatetime = 250
-vim.wo.signcolumn = 'yes'
--- Set colorscheme
-vim.o.termguicolors = true
-require('vscode').setup({
-  style = 'dark',
-  transparent = false,
-  italic_comments = true,
-  underline_links = true,
-  disable_nvimtree_bg = false,
-  group_overrides = {
-    -- Make the borders of hover and diagnostics have the correct color
-    FloatBorder = { link = "LspFloatWinBorder" }
-  },
-})
-require('vscode').load()
--- vim.cmd [[colorscheme vscode]]
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect,preview'
--- Set relative line numbering
-vim.o.relativenumber = true
--- Set command line height to 0
-vim.o.cmdheight = 0
--- Highlight current line
+-- Decrease mapped sequence wait time
+vim.o.timeoutlen = 300
+-- Configure how new splits should be opened
+vim.o.splitright = true
+vim.o.splitbelow = true
+-- Sets how neovim will display certain whitespace characters in the editor.
+--  See `:help 'list'`
+--  and `:help 'listchars'`
+--
+--  Notice listchars is set using `vim.opt` instead of `vim.o`.
+--  It is very similar to `vim.o` but offers an interface for conveniently interacting with tables.
+--   See `:help lua-options`
+--   and `:help lua-options-guide`
+vim.o.list = true
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+-- Preview substitutions live, as you type!
+vim.o.inccommand = 'split'
+-- Show which line your cursor is on
 vim.o.cursorline = true
+-- Minimal number of screen lines to keep above and below the cursor.
+vim.o.scrolloff = 10
+-- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
+-- instead raise a dialog asking if you wish to save the current file(s)
+-- See `:help 'confirm'`
+vim.o.confirm = true
+vim.opt.termguicolors = true
 
--- Execute `init` function on each plugin
-FOR_EACH_PLUGIN(function(plugin)
-  if plugin.init ~= nil then
-    plugin.init()
-  end
-end)
+--------------------------------------
+--- General setup
+--------------------------------------
 
--- vim.cmd([[
---   " When switching buffers, preserve window view.
---   if v:version >= 700
---     au BufLeave * if !&diff | let b:winview = winsaveview() | endif
---     au BufEnter * if exists('b:winview') && !&diff | call winrestview(b:winview) | unlet! b:winview | endif
---   endif
--- ]])
+-- Load and setup plugins
+require('config.lazy')
 
--- [[ Basic Keymaps ]]
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+-- Setup LSP
+require('lsp')
 
-vim.diagnostic.config({
-  virtual_text = true,
-  update_in_insert = true,
-  underline = true,
-  severity_sort = true,
-  float = {
-    -- Another fucking place where I have to set rounded border. Fuck my life mann
-    -- For now these are the places where I had to set it:
-    -- + vim.diagnostics.config() (here)
-    -- + cmp.setup
-    -- + vim.g.rustaceanvim.tools.float_win_config
-    -- + noice plugin config
-    border = 'rounded',
-  },
-  signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = "",
-      [vim.diagnostic.severity.WARN] = "",
-      [vim.diagnostic.severity.INFO] = "",
-      [vim.diagnostic.severity.HINT] = "",
-    },
-    numhl = {
-      [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
-      [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
-      [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
-      [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
-    },
-    linehl = {
-      [vim.diagnostic.severity.ERROR] = "LspDiagnosticsSignError",
-      [vim.diagnostic.severity.WARN] = "LspDiagnosticsSignWarning",
-      [vim.diagnostic.severity.INFO] = "LspDiagnosticsSignHint",
-      [vim.diagnostic.severity.HINT] = "LspDiagnosticsSignInformation",
-    },
-  }
-})
-
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
--- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
--- [[ Highlight on yank ]]
--- See `:help vim.highlight.on_yank()`
-local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
-vim.api.nvim_create_autocmd('TextYankPost', {
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-  group = highlight_group,
-  pattern = '*',
-})
-
--- LSP settings.
---  This function gets run when an LSP connects to a particular buffer.
-LSP_ON_ATTACH = function(client, bufnr)
-  local nmap = function(keys, func, desc)
-    if desc then
-      desc = 'LSP: ' .. desc
-    end
-
-    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-  end
-
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
-  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ss', require('telescope.builtin').lsp_workspace_symbols, '[S]earch [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-
-  -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-  -- Lesser used LSP functionality
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-    vim.lsp.buf.format()
-  end, { desc = 'Format current buffer with LSP' })
-
-  vim.api.nvim_buf_create_user_command(bufnr, 'TypstSetMainFile', function()
-    local main_file = vim.fn.input('Path to main file: ', vim.fn.getcwd() .. '/', 'file')
-
-    vim.lsp.buf_request_sync(bufnr, "workspace/executeCommand", {
-      command = "typst-lsp.doPinMain",
-      arguments = { vim.uri_from_fname(main_file) },
-    }, 1000)
-  end, { desc = "Set main file for typst lsp" })
-end
-
--- Enable the following language servers
-local servers = {
-  lua_ls = {
-    Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-    },
-  },
-  pylsp = 'ignore',
-  rust_analyzer = 'ignore',
-  clangd = 'ignore',
-  cmake = {},
-  omnisharp = {},
-  -- intelephense = {
-  --   files = {
-  --     maxSize = 1000000,
-  --   }
-  -- },
-  tinymist = {
-    exportPdf = "never",
-  },
-}
-
--- Setup neovim lua configuration
-require('lazydev').setup()
-
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
--- local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    -- delay update diagnostics
-    update_in_insert = true,
-  }
-)
-
--- Setup mason so it can manage external tooling
-require('mason').setup()
-require('mason-null-ls').setup();
-
--- Ensure the servers above are installed
-local mason_lspconfig = require 'mason-lspconfig'
-
-mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
-  automatic_enable = false,
-}
-
-for _, server_name in pairs(mason_lspconfig.get_installed_servers()) do
-  if servers[server_name] == 'ignore' then
-    goto continue
-  end
-
-  require('lspconfig')[server_name].setup {
-    capabilities = capabilities,
-    on_attach = LSP_ON_ATTACH,
-    settings = servers[server_name],
-  }
-
-  ::continue::
-end
-
--- Setup PyLSP
-require('lspconfig').pylsp.setup {
-  capabilities = capabilities,
-  on_attach = LSP_ON_ATTACH,
-  settings = servers["pylsp"],
-  root_dir = require 'lspconfig'.util.root_pattern('.')
-}
-
--- Setup clangd
-local project_clangd = vim.fn.getcwd() .. "/.clangd_bin"
-if vim.fn.filereadable(project_clangd) == 1 then
-  project_clangd = vim.fn.readfile(project_clangd)[1]
-else
-  project_clangd = "clangd"
-end
-
-require('lspconfig').clangd.setup({
-  capabilities = capabilities,
-  on_attach = function(client, bufnr)
-    LSP_ON_ATTACH(client, bufnr)
-
-    vim.keymap.set('n', '<C-s>', function() vim.cmd('ClangdSwitchSourceHeader') end, { buffer = bufnr, desc = 'Switch [S]ource header', remap = true })
-  end,
-  flags = { allow_incremental_sync = true, debounce_text_changes = 500 },
-  cmd = {
-    project_clangd,
-    "--background-index",
-    "--suggest-missing-includes",
-    "--clang-tidy",
-    "--header-insertion=iwyu",
-    "-j", "8",
-    "--malloc-trim",
-    "--pch-storage=memory",
-    -- "--query-driver", "/home/kuba/.espressif/tools/riscv32-esp-elf/esp-13.2.0_20230928/riscv32-esp-elf/bin/riscv32-esp-elf-gcc",
-    "--compile-commands-dir", "build/"
-  },
-  env = vim.fn.environ(),
-})
-
--- Turn on lsp status information
-require('fidget').setup()
-
--- nvim-cmp setup
-local cmp = require 'cmp'
--- local luasnip = require 'luasnip'
-
--- Setup plugins
-require('plugin_setups')
-
-cmp.setup({
-  formatting = {
-    format = function(_, vim_item)
-      local max_width = 60
-      local label = vim_item.abbr
-      if #label > max_width then
-        vim_item.abbr = string.sub(label, 1, max_width - 1) .. "…"
-      end
-
-      return vim_item
-    end,
-  },
-  snippet = {
-    expand = function(args)
-      -- luasnip.lsp_expand(args.body)
-      vim.fn["vsnip#anonymous"](args.body)
-    end,
-  },
-  window = {
-    completion = cmp.config.window.bordered {
-      winhighlight = "Normal:Pmenu,FloatBorder:LspFloatWinBorder,CursorLine:PmenuSel,Search:None",
-    },
-    documentation = cmp.config.window.bordered {
-      winhighlight = "Normal:Pmenu,FloatBorder:LspFloatWinBorder,CursorLine:PmenuSel,Search:None",
-    },
-  },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }),
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-        -- elseif luasnip.expand_or_jumpable() then
-        --   luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-  },
-  sources = cmp.config.sources({
-    { name = 'nvim_lsp' },
-    -- { name = 'luasnip' },
-    -- File paths
-    { name = 'path' },
-    -- Function parameters while typing
-    { name = 'nvim_lsp_signature_help' },
-    { name = 'vsnip' },
-    -- Rust crates
-    { name = 'crates' },
-  }, {
-    -- Source current buffer.
-    { name = 'buffer' },
-  }),
-})
-
--- Set my custom eybindins for plugins
+-- Add additional keybindings
 require('keybindings')
 
--- Make checkhealth have a rounded border
-vim.g.health = { style = 'float' }
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = 'checkhealth',
-  callback = function()
-    local win = vim.api.nvim_get_current_win()
-    local buf = vim.api.nvim_get_current_buf()
-
-    local width = math.floor(vim.o.columns * 0.8)  -- 80% of screen width
-    local height = math.floor(vim.o.lines * 0.7)   -- 70% of screen height
-    local row = math.floor((vim.o.lines - height) / 2)
-    local col = math.floor((vim.o.columns - width) / 2)
-
-    pcall(vim.api.nvim_win_set_config, win, {
-      border = "rounded",
-      relative = "editor",
-      row = row,
-      col = col,
-      width = width,
-      height = height,
-      style = "minimal",
-    })
-
-    -- Optional: avoid listing in buffer list
-    vim.bo[buf].buflisted = false
-  end,
-})
-
--- Inline hints (neovim builtin functionality)
-vim.api.nvim_create_user_command('InlineHintsToggle', function()
-  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-end, { nargs = 0 })
+--------------------------------------
+--- Misc
+--------------------------------------
 
 -- Fuck this broo. I am done
-local function ffs_exit(cmd)
-  return function()
-    vim.cmd(cmd)
-  end
-end
-vim.api.nvim_create_user_command('Wq', ffs_exit('wq'), {})
-vim.api.nvim_create_user_command('WQ', ffs_exit('wq'), {})
-vim.api.nvim_create_user_command('Q', ffs_exit('q'), {})
-vim.api.nvim_create_user_command('W', ffs_exit('w'), {})
 vim.cmd([[
-  cnoreabbrev wQ Wq
-  cnoreabbrev Wq Wq
-  cnoreabbrev WQ Wq
-  cnoreabbrev Q q
-  cnoreabbrev W w
+  cabb W w
+  cabb Q q
+  cabb w; w
+  cabb Wa wa
+  cabb Qa qa
+  cabb WA wa
+  cabb QA qa
 ]])
-
--- Command for switching between light and dark theme
-vim.api.nvim_create_user_command('ToggleLightDarkTheme', function()
-  if vim.o.background == 'dark' then
-    require('vscode').load('light')
-  elseif vim.o.background == 'light' then
-    require('vscode').load('dark')
-  end
-end, { nargs = 0 })
-

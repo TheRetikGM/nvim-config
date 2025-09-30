@@ -1,13 +1,13 @@
 PLUGINS.neotest = {
   packer = {
     "nvim-neotest/neotest",
-    commit = '3c81345c28cd639fcc02843ed3653be462f47024',
+    -- commit = '3c81345c28cd639fcc02843ed3653be462f47024',
     requires = {
       "nvim-neotest/nvim-nio",
       "nvim-lua/plenary.nvim",
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
-      { "rouge8/neotest-rust", commit = '6f79e8468a254d4fe59abf5ca8703c125c16a1e3' }
+      { "rouge8/neotest-rust" }
     }
   },
   setup = function()

@@ -1,4 +1,4 @@
-neotree_open = false
+neotree_open = false -- used by dapui
 function neotree_toggle(_)
   neotree_open = not neotree_open
   vim.cmd('Neotree toggle')
@@ -22,4 +22,3 @@ PLUGINS.neotree = {
   end,
   prio = 30,
 }
-

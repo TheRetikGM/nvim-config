@@ -1,0 +1,56 @@
+-- Replace nvim UI like :messsages
+PLUGINS.noice = {
+  ignore = false,
+  packer = {
+    'folke/noice.nvim',
+    requires = { 'MunifTanjim/nui.nvim' },
+    commit = '0427460c2d7f673ad60eb02b35f5e9926cf67c59',
+  },
+  setup = function()
+    vim.api.nvim_set_hl(0, 'MacroRecordingIcon', { fg = '#ffaaaa', bold = true })
+
+    require("noice").setup({
+      -- Show @recording instead of lualine
+      routes = {
+        {
+          view = 'cmdline',
+          filter = { event = 'msg_showmode', any = { { find = 'recording' } } },
+          opts = { format = { { '󰑊', hl_group = 'MacroRecordingIcon' }, ' ', '{message}' } },
+        },
+      },
+      cmdline = {
+        enabled = true,
+        view = 'cmdline'
+      },
+      lsp = {
+        -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+        },
+        signature = {
+          enabled = false, -- We are using cmp nvim_lsp_signature_help
+          auto_open = {
+            enabled = true,
+            trigger = true, -- Automatically show signature help when typing a trigger character from the LSP
+            luasnip = true, -- Will open signature help when jumping to Luasnip insert nodes
+            throttle = 50,  -- Debounce lsp signature help request by 50ms
+          },
+          view = nil,       -- when nil, use defaults from documentation
+          ---@type NoiceViewOptions
+          opts = {},        -- merged with defaults from documentation
+        },
+
+      },
+      -- you can enable a preset for easier configuration
+      presets = {
+        bottom_search = true,         -- use a classic bottom cmdline for search
+        command_palette = false,      -- position the cmdline and popupmenu together
+        long_message_to_split = true, -- long messages will be sent to a split
+        inc_rename = false,           -- enables an input dialog for inc-rename.nvim
+        lsp_doc_border = true,        -- add a border to hover docs and signature help
+      },
+    })
+  end,
+}
