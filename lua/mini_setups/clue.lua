@@ -34,6 +34,10 @@ return {
         { mode = 'x', keys = 'z' },
       },
 
+      window = {
+        delay = 500
+      },
+
       clues = {
         { mode = 'n', keys = '<leader>s', desc = '+Search..' },
         { mode = 'n', keys = '<leader>g', desc = '+Go..' },

@@ -17,7 +17,12 @@ LSP_SERVERS = {
   tinymist = {
     exportPdf = "never",
   },
-  omnisharp = 'ignore',
+  -- C#
+  roslyn = {
+    -- https://github.com/seblyng/roslyn.nvim?tab=readme-ov-file#example
+  },
+  -- Razor
+  rzls = {},
 }
 
 return {
@@ -27,14 +32,24 @@ return {
       { "mason-org/mason.nvim", opts = {} },
       "neovim/nvim-lspconfig",
     },
-    opts = {
-      ensure_installed = vim.tbl_keys(LSP_SERVERS),
-      registries = {
-        "github:mason-org/mason-registry",
-        "github:Crashdummyy/mason-registry",
-        "github:nvim-java/mason-registry",
-      },
-    },
+    config = function()
+      require("mason").setup({
+        ensure_installed = vim.tbl_keys(LSP_SERVERS),
+        registries = {
+          "github:mason-org/mason-registry",
+          "github:Crashdummyy/mason-registry",  -- Roslyn and rzls
+          "github:nvim-java/mason-registry",
+        },
+      })
+
+      require('mason-lspconfig').setup({
+        automatic_enable = {
+          exclude = {
+            'rust_analyzer',
+          }
+        }
+      })
+    end
   },
   {
     -- Connect mason and null-ls to make linteres and formatters work.

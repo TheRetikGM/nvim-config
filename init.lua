@@ -75,6 +75,7 @@ vim.cmd([[
   cabb W w
   cabb Q q
   cabb w; w
+  cabb W; w
   cabb Wa wa
   cabb Qa qa
   cabb WA wa

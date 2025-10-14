@@ -10,6 +10,7 @@ return {
     merge_duplicates = true
   },
   config = function()
+    require('notify').setup()   -- Notifications command won't be created if not called here
     vim.notify = require('notify')
   end
 }

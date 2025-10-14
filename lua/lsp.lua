@@ -133,6 +133,7 @@ end
 -------------------------
 
 -- Setup PyLSP
+vim.lsp.enable('pylsp')
 vim.lsp.config('pylsp', {
   capabilities = capabilities,
   on_attach = G.lsp_on_attach,
@@ -153,4 +154,12 @@ clangd_opts.on_attach = function(client, bufnr)
     remap = true
   })
 end
+vim.lsp.enable('clangd')
 vim.lsp.config('clangd', clangd_opts)
+
+-- Setup C#
+vim.lsp.config('roslyn', {
+  capabilities = capabilities,
+  on_attach = G.lsp_on_attach,
+  settings = LSP_SERVERS['roslyn'],
+})

@@ -6,10 +6,10 @@ return {
     require('mini.completion').setup({
       window = {
         info = {
-          border = 'single',
+          border = 'rounded',
         },
         signature = {
-          border = 'single'
+          border = 'rounded'
         },
       }
     })
