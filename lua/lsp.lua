@@ -64,8 +64,10 @@ G.lsp_on_attach = function(_, bufnr)
 
   local pickext = require('mini.extra').pickers
 
-  nmap('gd', function() pickext.lsp({ scope = 'definition' }) end, '[G]oto [D]efinition')
-  nmap('gr', function() pickext.lsp({ scope = 'references' }) end, '[G]oto [R]eferences')
+  -- nmap('gd', function() pickext.lsp({ scope = 'definition' }) end, '[G]oto [D]efinition')
+  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  -- nmap('gr', function() pickext.lsp({ scope = 'references' }) end, '[G]oto [R]eferences')
+  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', function() pickext.lsp({ scope = 'implementation' }) end, '[G]oto [I]mplementation')
   nmap('<leader>D', function() pickext.lsp({ scope = 'type_definition' }) end, 'Type [D]efinition')
   nmap('<leader>ds', function() pickext.lsp({ scope = 'document_symbol'}) end, '[D]ocument [S]ymbols')

@@ -6,7 +6,7 @@ return {
       ----------------------
       --- Text editing
       ----------------------
-      require('mini.snippets').setup()           -- Manage and expand snippets
+      require('mini_setups.snippets').setup()           -- Manage and expand snippets
       require('mini_setups.keymap').setup()      -- Use tab for completion and more smart stuff
       require('mini_setups.completion').setup()  -- Completion plugin (alternative to nvim-cmp)
       require('mini_setups.align').setup()       -- Align options (TODO keybindings)
