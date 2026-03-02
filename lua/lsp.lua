@@ -47,7 +47,7 @@ vim.diagnostic.config({
 })
 
 -- Just a global utility table
-G = {}
+G = {}  -- NOTE: Maybe this should be moved to init.lua, so that it won't be accidentally overwritten
 
 G.lsp_on_attach = function(_, bufnr)
   -- Init our keymaps
@@ -100,7 +100,8 @@ end
 --- Setup capabilities
 -------------------------
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+local capabilities = require('mini.completion').get_lsp_capabilities()  -- For testing only
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
     -- delay update diagnostics
@@ -134,14 +135,14 @@ end
 --- Custom server setups
 -------------------------
 
--- Setup PyLSP
-vim.lsp.enable('pylsp')
-vim.lsp.config('pylsp', {
-  capabilities = capabilities,
-  on_attach = G.lsp_on_attach,
-  settings = LSP_SERVERS["pylsp"],
-  root_dir = require 'lspconfig'.util.root_pattern('.')
-})
+-- -- Setup PyLSP
+-- vim.lsp.enable('pylsp')
+-- vim.lsp.config('pylsp', {
+--   capabilities = capabilities,
+--   on_attach = G.lsp_on_attach,
+--   -- settings = LSP_SERVERS["pylsp"],
+--   root_dir = require 'lspconfig'.util.root_pattern('.')
+-- })
 
 -- Setup clangd
 local clangd_opts = require('lsp.clangd')

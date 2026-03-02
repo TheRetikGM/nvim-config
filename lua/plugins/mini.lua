@@ -6,12 +6,13 @@ return {
       ----------------------
       --- Text editing
       ----------------------
-      require('mini_setups.snippets').setup()           -- Manage and expand snippets
+      require('mini_setups.snippets').setup()    -- Manage and expand snippets
       require('mini_setups.keymap').setup()      -- Use tab for completion and more smart stuff
       require('mini_setups.completion').setup()  -- Completion plugin (alternative to nvim-cmp)
       require('mini_setups.align').setup()       -- Align options (TODO keybindings)
       require('mini.pairs').setup()              -- Autopairs for ([{}]) etc
-      require('mini_setups.surround').setup()    -- Surround actions (eg.: word -> "word") (TODO keybindings)
+      require('mini_setups.surround').setup()    -- Surround actions (eg.: word -> "word")
+      require('mini.move').setup()               -- Move lines visually with Alt+hjkl
 
       ----------------------
       --- General workflow
@@ -26,9 +27,9 @@ return {
       ----------------------
       --- Appearance
       ----------------------
-      require('mini.icons').setup()           -- Icon provider
-      -- require('mini_setups.notify').setup()   -- Show notifications
-      require('mini.indentscope').setup()     -- Visualize indent scope
+      require('mini.icons').setup()             -- Icon provider
+      -- require('mini_setups.notify').setup()     -- Show notifications
+      require('mini.indentscope').setup()       -- Visualize indent scope
     end
   }
 }

@@ -18,9 +18,9 @@ return {
     vim.o.foldlevelstart = 99
     vim.o.foldenable = true
   end,
-  setup = function()
-    -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
-    vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-    vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
-  end,
+  keys = {
+    -- {'zR', require('nvim-ufo').openAllFolds, mode = 'n', desc = 'Open all folds'},
+    -- {'zM', require('nvim-ufo').closeAllFolds, mode = 'n', desc = 'Close all folds'}
+  },
+  config = true   -- When config = true or opts is set, the default require(MAIN).config(opts) is used here.
 }

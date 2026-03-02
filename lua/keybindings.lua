@@ -22,6 +22,11 @@ vim.keymap.set('n', '<S-Tab>', [[v<]], { desc = 'Unindent line' })
 vim.keymap.set('v', '<Tab>', [[>gv]], { desc = 'Indent block and select it again' })
 vim.keymap.set('v', '<S-Tab>', [[<gv]], { desc = 'Indent block and select it again' })
 vim.keymap.set('i', '<S-Tab>', [[<BS>]], { desc = 'Provide un-tab in insert mode' })
+vim.keymap.set('n', '<C-/>', [[gcc]], { desc = 'Comment/Uncomment line', remap = true })
+vim.keymap.set('v', '<C-/>', [[gcc]], { desc = 'Comment/Uncomment line', remap = true })
+
+-- Show completion menu for filesystem paths
+vim.keymap.set('i', '<M-/>', [[<C-x><C-f>]], { desc = 'Completion from filesystem paths' })
 
 -- Tab keybindings
 local function bufmap(mode, key, action, desc, del)

@@ -5,6 +5,11 @@ return {
     requires = { 'nvim-lua/plenary.nvim' },
     lazy = false,
     config = function()
+      require('telescope').setup({
+        -- Note that we are using mini for searching files, so this doesn't have effect on searching files.
+        file_ignore_patterns = { "node_modules", "build", "builddir", "dist", "target", "bin", "obj" }
+      })
+
       pcall(require('telescope').load_extension, 'fzf')
 
       -- vim.keymap.set('n', '<leader><space>', require('telescope.builtin').commands, { desc = '[ ] Find commands' })

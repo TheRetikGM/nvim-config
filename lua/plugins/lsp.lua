@@ -5,7 +5,7 @@ LSP_SERVERS = {
       telemetry = { enable = false },
     },
   },
-  pylsp = 'ignore',
+  -- pylsp = 'ignore',
   rust_analyzer = 'ignore',
   clangd = 'ignore',
   cmake = {},
