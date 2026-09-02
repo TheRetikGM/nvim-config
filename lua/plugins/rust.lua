@@ -51,7 +51,9 @@ local rust_config = {
     autoimport = {
       enable = true,
     },
-    enableSnippets = true,
+    callable = {
+      snippets = "add_parentheses",
+    }
   },
   inlayHints = {
     lifetimeElisionHints = {
@@ -63,6 +65,11 @@ local rust_config = {
   cachePriming = {
     enable = true,
     numThreads = 2,
+  },
+  diagnostics = {
+    disabled = {
+      "proc-macro-disabled"
+    }
   },
 }
 
@@ -80,7 +87,7 @@ return {
             ui_select_fallback = true,
           },
           float_win_config = {
-            border = 'rounded',
+            border = G.border,
             winhighlight = "Normal:LspFloatWinBorder,FloatBorder:LspFloatWinBorder",
           }
         },
@@ -116,7 +123,12 @@ return {
         -- DAP configuration
         ---@type rustaceanvim.dap.Opts
         dap = {
-          adapter = get_dap_adapter(),
+          adapter = {
+            name = 'rust-gdb',
+            type = 'executable',
+            command = "rust-gdb",
+            args = { "--interpreter=dap", "--eval-command", "set print pretty on" }
+          }
         },
       }
     end,
@@ -151,18 +163,16 @@ return {
   },
   {
     'Saecki/crates.nvim',
-    tag = 'stable',
-    event = { "BufRead Cargo.toml" },
+    -- tag = 'stable',
+    -- event = { "BufRead Cargo.toml" },
     config = function()
       require('crates').setup({
         completion = {
-          cmp = {
-            enabled = false
-          },
-        },
-        null_ls = {
-          enabled = false,
-          name = "crates.nvim",
+          crates = {
+            enabled = true,
+            max_results = 8,
+            min_chars = 3,
+          }
         },
         lsp = {
           enabled = true,

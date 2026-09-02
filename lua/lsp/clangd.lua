@@ -63,7 +63,7 @@ local project_clangd = vim.fn.getcwd() .. "/.clangd_bin"
 if vim.fn.filereadable(project_clangd) == 1 then
   project_clangd = vim.fn.readfile(project_clangd)[1]
 else
-  project_clangd = "clangd"
+  project_clangd = "/usr/bin/clangd"
 end
 
 return {
@@ -104,13 +104,13 @@ return {
     end
   end,
   on_attach = function(client, bufnr)
-    vim.api.nvim_buf_create_user_command(bufnr, 'LspClangdSwitchSourceHeaderMy', function()
-      switch_source_header(bufnr, client)
-    end, { desc = 'Switch between source/header' })
-
-    vim.api.nvim_buf_create_user_command(bufnr, 'LspClangdShowSymbolInfo', function()
-      symbol_info(bufnr, client)
-    end, { desc = 'Show symbol info' })
+    -- vim.api.nvim_buf_create_user_command(bufnr, 'LspClangdSwitchSourceHeader__M', function()
+    --   switch_source_header(bufnr, client)
+    -- end, { desc = 'Switch between source/header' })
+    --
+    -- vim.api.nvim_buf_create_user_command(bufnr, 'LspClangdShowSymbolInfo', function()
+    --   symbol_info(bufnr, client)
+    -- end, { desc = 'Show symbol info' })
   end,
   env = vim.fn.environ(),
 }

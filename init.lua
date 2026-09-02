@@ -15,8 +15,9 @@ vim.o.showmode = false    -- Don't show the mode, since it's already in the stat
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
--- Enable break indent
-vim.o.breakindent = true
+-- Enable smart indent
+-- vim.o.breakindent = true
+vim.o.smartindent = true
 -- Save undo history
 vim.o.undofile = true
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
@@ -52,6 +53,11 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 vim.opt.termguicolors = true
+
+-- Just a global utility & variables table
+G = {
+  border = 'rounded',    -- none|rounded|single|...
+}
 
 --------------------------------------
 --- General setup

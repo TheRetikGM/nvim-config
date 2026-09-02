@@ -4,7 +4,7 @@
 --       mini.notify when we aren't using noice also
 return {
   'rcarriga/nvim-notify',
-  enabled = true,
+  enabled = false, -- Testing out snacks.nvim
   opts = {
     background_colour = "#000000",
     merge_duplicates = true

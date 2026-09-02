@@ -2,15 +2,15 @@ return {
   setup = function()
     -- Set completeopt to have a better completion experience
     vim.o.completeopt = 'menuone,noselect,fuzzy,nosort'
-    vim.o.winborder = 'rounded' -- Hooray! Neovim builtin since Oct-2025
+    vim.o.winborder = G.border  -- Hooray! Neovim builtin since Oct-2025
 
     require('mini.completion').setup({
       window = {
         info = {
-          border = 'rounded',
+          border = G.border,
         },
         signature = {
-          border = 'rounded'
+          border = G.border
         },
       },
       lsp_completion = {

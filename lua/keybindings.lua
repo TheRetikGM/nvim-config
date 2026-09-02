@@ -24,6 +24,8 @@ vim.keymap.set('v', '<S-Tab>', [[<gv]], { desc = 'Indent block and select it aga
 vim.keymap.set('i', '<S-Tab>', [[<BS>]], { desc = 'Provide un-tab in insert mode' })
 vim.keymap.set('n', '<C-/>', [[gcc]], { desc = 'Comment/Uncomment line', remap = true })
 vim.keymap.set('v', '<C-/>', [[gcc]], { desc = 'Comment/Uncomment line', remap = true })
+vim.keymap.set('n', '', [[gcc]], { desc = 'Comment/Uncomment line', remap = true })
+vim.keymap.set('v', '', [[gcc]], { desc = 'Comment/Uncomment line', remap = true })
 
 -- Show completion menu for filesystem paths
 vim.keymap.set('i', '<M-/>', [[<C-x><C-f>]], { desc = 'Completion from filesystem paths' })
@@ -84,3 +86,16 @@ vim.keymap.set('n', '<F7>', function() vim.cmd('tabnext') end, { desc = 'Next ta
 vim.keymap.set('i', '<F7>', [[<esc>:tabnext<cr>]], { desc = 'Next tab' })
 vim.keymap.set('v', '<F7>', [[<esc>:tabnext<cr>]], { desc = 'Next tab' })
 vim.keymap.set('n', '<leader>t', function() vim.cmd('tabnext') end, { desc = 'Next tab' })
+
+-- Keybinds for pickers
+local pick = require('picker')
+vim.keymap.set('n', '<leader>sf', pick.files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>sb', pick.buffers, { desc = '[S]earch [B]uffers' })
+vim.keymap.set('n', '<leader>sg', pick.live_grep, { desc = '[S]earch with [G]rep' })
+vim.keymap.set('n', '<leader>sh', pick.help, { desc = '[S]earch [H]elp' })
+vim.keymap.set('n', '<leader><leader>', pick.commands, { desc = 'Search commands' })
+vim.keymap.set('n', '<leader>sd', pick.diagnostic, { desc = '[S]earch [D]iagnostics' })
+vim.keymap.set('n', '<leader>sk', pick.keymaps, { desc = '[S]earch [K]eymaps' })
+vim.keymap.set('n', '<leader>e', pick.explorer, { desc = '[S]elect Quick [E]xplorer' })
+vim.keymap.set('n', '<leader>se', pick.quick_explorer, { desc = '[S]elect Quick [E]xplorer' })
+

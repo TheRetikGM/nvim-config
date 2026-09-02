@@ -1,77 +1,44 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = 'master',
+    branch = 'main',
     lazy = false,
     build = ":TSUpdate",
-    opts = { },
+    opts = {},
     priority = 1000,
-    config = function()
-      require('nvim-treesitter.configs').setup({
-        -- Add languages to be installed here that you want installed for treesitter
-        ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'vimdoc', 'vim', 'html', 'css', 'json', 'jsonc', 'json5', 'php', 'phpdoc', 'javascript', 'comment' },
+    enabled = true,
+    init = function()
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { '*' },
+        callback = function(args)
+          local ft = args.match
+          local lang = vim.treesitter.language.get_lang(ft)
 
-        highlight = {
-          enable = true,
-        },
-        indent = { enable = false, disable = { 'python' } },
-        -- incremental_selection = {
-        --   enable = true,
-        --   keymaps = {
-        --     init_selection = '<c-space>',
-        --     node_incremental = '<c-space>',
-        --     scope_incremental = '<c-s>',
-        --     node_decremental = '<c-backspace>',
-        --   },
-        -- },
-        textobjects = {
-          select = {
-            enable = true,
-            lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ['aa'] = '@parameter.outer',
-              ['ia'] = '@parameter.inner',
-              ['af'] = '@function.outer',
-              ['if'] = '@function.inner',
-              ['ac'] = '@class.outer',
-              ['ic'] = '@class.inner',
-            },
-          },
-          move = {
-            enable = true,
-            set_jumps = true, -- whether to set jumps in the jumplist
-            goto_next_start = {
-              [']m'] = '@function.outer',
-              [']]'] = '@class.outer',
-            },
-            goto_next_end = {
-              [']M'] = '@function.outer',
-              [']['] = '@class.outer',
-            },
-            goto_previous_start = {
-              ['[m'] = '@function.outer',
-              ['[['] = '@class.outer',
-            },
-            goto_previous_end = {
-              ['[M'] = '@function.outer',
-              ['[]'] = '@class.outer',
-            },
-          },
-          swap = {
-            enable = true,
-            swap_next = {
-              ['<leader>a'] = '@parameter.inner',
-            },
-            swap_previous = {
-              ['<leader>A'] = '@parameter.inner',
-            },
-          },
-        },
+          if not lang or not vim.treesitter.language.add(lang) then
+            return
+          end
+
+          vim.treesitter.start()
+
+          vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+          vim.wo[0][0].foldmethod = 'expr'
+          -- Doesn't work reliably. I use vim.o.smartindent for now
+          -- vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end
       })
     end,
+    config = function()
+      local ts = require('nvim-treesitter')
+
+      ts.setup {
+        install_dir = vim.fn.stdpath('data') .. '/site'
+      }
+
+      -- No-op if the parsers are already installed
+      ts.install { 'c', 'cpp', 'go', 'lua', 'python', 'typescript', 'vimdoc', 'vim', 'html', 'css', 'json', 'json5', 'php', 'phpdoc', 'javascript', 'comment', 'ini' }
+    end,
   },
-  {
-    'nvim-treesitter/nvim-treesitter-textobjects'
-  },
+  -- {
+  --   'nvim-treesitter/nvim-treesitter-textobjects'
+  -- },
 }

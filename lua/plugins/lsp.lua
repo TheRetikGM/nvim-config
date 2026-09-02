@@ -22,7 +22,7 @@ LSP_SERVERS = {
     -- https://github.com/seblyng/roslyn.nvim?tab=readme-ov-file#example
   },
   -- Razor
-  rzls = {},
+  -- rzls = {},
 }
 
 return {
@@ -37,7 +37,7 @@ return {
         ensure_installed = vim.tbl_keys(LSP_SERVERS),
         registries = {
           "github:mason-org/mason-registry",
-          "github:Crashdummyy/mason-registry",  -- Roslyn and rzls
+          "github:Crashdummyy/mason-registry", -- More up-to-date roslyn and roslyn-nightly
           "github:nvim-java/mason-registry",
         },
       })
@@ -61,8 +61,20 @@ return {
     },
     opts = {},
   },
+  -- The pretty LSP loading info shown in the right bottom corner
   {
     "j-hui/fidget.nvim",
     opts = {},
   },
+  -- Diagnostics window and more
+  {
+    "folke/trouble.nvim",
+    cmd = "Trouble",
+    opts = {},
+    -- Set to true if you want to find the help pages
+    -- lazy = false,
+    config = function(opts)
+      require('trouble').setup(opts)
+    end
+  }
 }

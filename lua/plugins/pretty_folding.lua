@@ -6,7 +6,7 @@ return {
   },
   opts = {
     provider_selector = function(_, _, _)
-      return {'treesitter', 'indent'}
+      return { 'treesitter', 'indent' }
     end
   },
   lazy = false,
